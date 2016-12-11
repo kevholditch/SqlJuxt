@@ -1,11 +1,8 @@
 ﻿using FluentAssertions;
 using Xunit;
-using FluentAssertions.Primitives;
 
 namespace SqlJuxt.Tests.Scripting
 {
-   
-
     public class ScriptTableScenarios
     {
         [Fact]
