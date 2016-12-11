@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt", "SqlJuxt\SqlJuxt.csproj", "{ED0772A8-62BF-45C1-9D09-B6106D2472FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E807CAA7-0E47-48CE-B437-A73C644E98C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt.Tests", "SqlJuxt.Tests\SqlJuxt.Tests.csproj", "{B5A7F3F2-0127-4924-AA93-AB78A139546A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt.TestDatabase", "SqlJuxt.TestDatabase\SqlJuxt.TestDatabase.csproj", "{6F518646-C402-40C6-8587-6006AF56CBBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt.TestDatbase.Tests", "SqlJuxt.TestDatbase.Tests\SqlJuxt.TestDatbase.Tests.csproj", "{AF694D84-DE70-4759-8DB3-16F89B8B1509}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED0772A8-62BF-45C1-9D09-B6106D2472FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED0772A8-62BF-45C1-9D09-B6106D2472FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED0772A8-62BF-45C1-9D09-B6106D2472FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED0772A8-62BF-45C1-9D09-B6106D2472FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5A7F3F2-0127-4924-AA93-AB78A139546A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A7F3F2-0127-4924-AA93-AB78A139546A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A7F3F2-0127-4924-AA93-AB78A139546A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A7F3F2-0127-4924-AA93-AB78A139546A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F518646-C402-40C6-8587-6006AF56CBBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F518646-C402-40C6-8587-6006AF56CBBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F518646-C402-40C6-8587-6006AF56CBBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F518646-C402-40C6-8587-6006AF56CBBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B5A7F3F2-0127-4924-AA93-AB78A139546A} = {E807CAA7-0E47-48CE-B437-A73C644E98C3}
+		{6F518646-C402-40C6-8587-6006AF56CBBC} = {E807CAA7-0E47-48CE-B437-A73C644E98C3}
+		{AF694D84-DE70-4759-8DB3-16F89B8B1509} = {E807CAA7-0E47-48CE-B437-A73C644E98C3}
+	EndGlobalSection
+EndGlobal
