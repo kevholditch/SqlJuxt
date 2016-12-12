@@ -17,8 +17,8 @@ namespace SqlJuxt.Tests
 
             "Given a table"
                 ._(() => table = Sql.BuildScript()
-                    .WithTableNamed("MyTable",
-                        t => t.WithColumns(c => c.NullableVarchar("First", 23).NullableInt("Second"))));
+                                    .WithTableNamed("MyTable", t => t.WithColumns(c => c.NullableVarchar("First", 23)
+                                                                                        .NullableInt("Second"))));
 
             "And the table is created on the left database"
                 ._(() => leftDatabase.RunScript(table));

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace SqlJuxt.Scripting
 {
-
     public class ColumnsBuilder
     {
         private readonly List<Column> _columns = new List<Column>();
