@@ -22,7 +22,8 @@ module Comparer =
     
     let private getSchema connectionString =
         let tables =
-            new SqlConnection(connectionString) |> getColumns
+            use connection = new SqlConnection(connectionString)
+            connection |> getColumns
                 |> Seq.groupBy(fun c -> c.TableName)
                 |> Seq.map(fun (tableName, columns) -> { Table.Name = tableName; Columns = columns |> Seq.toList})
                 |> Seq.toList
