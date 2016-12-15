@@ -63,7 +63,8 @@ namespace SqlJuxt.TestDatabase
 
             if (values.Length > 3)
             {
-                if (Guid.TryParse(values[3], out id)) ;
+                if (!Guid.TryParse(values[3], out id))
+                    return false;
             }
 
 
