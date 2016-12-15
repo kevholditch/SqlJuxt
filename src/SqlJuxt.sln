@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt.TestDatabase", "Sql
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlJuxt.TestDatbase.Tests", "SqlJuxt.TestDatbase.Tests\SqlJuxt.TestDatbase.Tests.csproj", "{AF694D84-DE70-4759-8DB3-16F89B8B1509}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SqlJuxtFunctional", "SqlJuxtFunctional\SqlJuxtFunctional.fsproj", "{9AD06032-94CD-4F0F-A0B8-F8D5D1FDFB87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF694D84-DE70-4759-8DB3-16F89B8B1509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AD06032-94CD-4F0F-A0B8-F8D5D1FDFB87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AD06032-94CD-4F0F-A0B8-F8D5D1FDFB87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AD06032-94CD-4F0F-A0B8-F8D5D1FDFB87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AD06032-94CD-4F0F-A0B8-F8D5D1FDFB87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

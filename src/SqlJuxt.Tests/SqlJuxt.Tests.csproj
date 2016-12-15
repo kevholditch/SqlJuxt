@@ -87,6 +87,10 @@
       <Project>{6F518646-C402-40C6-8587-6006AF56CBBC}</Project>
       <Name>SqlJuxt.TestDatabase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SqlJuxtFunctional\SqlJuxtFunctional.fsproj">
+      <Project>{9ad06032-94cd-4f0f-a0b8-f8d5d1fdfb87}</Project>
+      <Name>SqlJuxtFunctional</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SqlJuxt\SqlJuxt.csproj">
       <Project>{ed0772a8-62bf-45c1-9d09-b6106d2472ff}</Project>
       <Name>SqlJuxt</Name>
