@@ -17,7 +17,7 @@ module Comparer =
 		                                                                            COLUMN_DEFAULT as ""Default"", IS_NULLABLE as ""IsNullable"", DATA_TYPE as ""DataType"", CHARACTER_MAXIMUM_LENGTH as ""CharacterMaxLength""
                                                                              from INFORMATION_SCHEMA.COLUMNS
                                                                              order by TABLE_NAME, ORDINAL_POSITION"
-        |> Seq.toList
+        
 
     
     let private getSchema connectionString =
