@@ -37,10 +37,6 @@
       <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Equals, Version=1.6.2.0, Culture=neutral, PublicKeyToken=15432f00798e61a4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Equals.Fody.1.6.2.0\lib\dotnet\Equals.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -83,9 +79,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.29.2\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.2\build\dotnet\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Equals.Fody.1.6.2.0\build\dotnet\Equals.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Equals.Fody.1.6.2.0\build\dotnet\Equals.Fody.targets'))" />
   </Target>
-  <Import Project="..\packages\Equals.Fody.1.6.2.0\build\dotnet\Equals.Fody.targets" Condition="Exists('..\packages\Equals.Fody.1.6.2.0\build\dotnet\Equals.Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
