@@ -44,7 +44,7 @@ module DatabaseBuilder =
                                         | V col when col.isNullable -> sprintf "[%s] [varchar](%i) NULL" col.name col.length
                                         | V col                     -> sprintf "[%s] [varchar](%i) NOT NULL" col.name col.length)
                             |> fun cols -> String.Join(",", cols)
-            sprintf "%s%s%s%s)%sGO%s" openScript Environment.NewLine columnScript Environment.NewLine Environment.NewLine Environment.NewLine
+            openScript + " " + columnScript + " )" + Environment.NewLine + "GO"
 
 
 

@@ -12,11 +12,8 @@ open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
             Create "TestTable"
                 |> WithNullableInt "Column1"
                 |> Build 
-                |> should equal @"CREATE TABLE [dbo].[TestTable](
-[Column1] [int] NULL
-)
-GO
-"
+                |> should equal @"CREATE TABLE [dbo].[TestTable]( [Column1] [int] NULL )
+GO"
 
 
 
