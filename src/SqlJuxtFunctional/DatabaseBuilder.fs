@@ -38,12 +38,13 @@ module DatabaseBuilder =
         let Build table =
             let openScript = sprintf "CREATE TABLE [dbo].[%s](" table.name
             let columnScript = table.columns 
+                            |> Seq.rev
                             |> Seq.map(fun c -> match c with
                                         | I col when col.isNullable -> sprintf "[%s] [int] NULL" col.name 
                                         | I col                     -> sprintf "[%s] [int] NOT NULL" col.name 
                                         | V col when col.isNullable -> sprintf "[%s] [varchar](%i) NULL" col.name col.length
                                         | V col                     -> sprintf "[%s] [varchar](%i) NOT NULL" col.name col.length)
-                            |> fun cols -> String.Join(",", cols)
+                            |> fun cols -> String.Join(", ", cols)
             openScript + " " + columnScript + " )" + Environment.NewLine + "GO"
 
 
