@@ -9,10 +9,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SqlJuxtFunctional</RootNamespace>
     <AssemblyName>SqlJuxtFunctional</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>SqlJuxtFunctional</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,7 +53,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="DapperFSharp.fs" />
-    <Compile Include="Types.fs" />
+    <Compile Include="DatabaseBuilder.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
     <Compile Include="Comparer.fs" />

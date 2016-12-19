@@ -7,6 +7,10 @@ module Comparer =
     open DapperFSharp
     open System
 
+    type Column = { Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }
+    type Table = {Name:string; Columns: Column list}
+    type Schema = {Tables: Table list}
+
     let private getColumns connection =
         connection
         |> dapperQuery<Column> @"select TABLE_SCHEMA as ""Schema"", TABLE_NAME as ""TableName"",   COLUMN_NAME as ""ColumnName"", ORDINAL_POSITION as ""OrdinalPosition"",
