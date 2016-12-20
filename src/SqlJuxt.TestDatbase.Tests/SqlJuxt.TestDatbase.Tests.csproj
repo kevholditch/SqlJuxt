@@ -77,12 +77,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SqlJuxt.TestDatabase\SqlJuxt.TestDatabase.csproj">
-      <Project>{6f518646-c402-40c6-8587-6006af56cbbc}</Project>
-      <Name>SqlJuxt.TestDatabase</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -78,16 +78,11 @@
     <Compile Include="LocalDbFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\ScriptTableScenarios.cs" />
-    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SqlJuxt.TestDatabase\SqlJuxt.TestDatabase.csproj">
-      <Project>{6F518646-C402-40C6-8587-6006AF56CBBC}</Project>
-      <Name>SqlJuxt.TestDatabase</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SqlJuxtFunctional\SqlJuxtFunctional.fsproj">
       <Project>{9ad06032-94cd-4f0f-a0b8-f8d5d1fdfb87}</Project>
       <Name>SqlJuxtFunctional</Name>

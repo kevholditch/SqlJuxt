@@ -12,7 +12,7 @@ module DatabaseBuilder =
 
     module TableBuilder =
 
-        let Create name =
+        let CreateTable name =
             {name = name; columns = []}
 
         let private withInt name nullable table =

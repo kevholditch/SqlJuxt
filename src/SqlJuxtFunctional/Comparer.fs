@@ -1,7 +1,5 @@
 ﻿namespace SqlJuxtFunctional
 
-
-
 module Comparer =
     open System.Data.SqlClient
     open DapperFSharp

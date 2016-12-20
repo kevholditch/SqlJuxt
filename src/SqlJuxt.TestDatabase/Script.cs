@@ -40,7 +40,7 @@ namespace SqlJuxt.TestDatabase
             var reader = new StringReader(_sqlText);
 
             var scriptBlockBuilder = new StringBuilder();
-
+            
             string line;
 
             while ((line = reader.ReadLine()) != null)
