@@ -17,8 +17,8 @@
                         |> WithNullableInt "Column1"
                         |> Build 
 
-        runScript left.ConnectionString table
-        runScript right.ConnectionString table
+        runScript left table
+        runScript right table
 
         Compare left.ConnectionString right.ConnectionString 
             |> should equal true

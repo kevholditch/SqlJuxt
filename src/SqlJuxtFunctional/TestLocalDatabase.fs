@@ -5,10 +5,6 @@
     open FSharp.Data
     open System.Data.SqlClient
    
-    type Database  = {Name: string; ConnectionString: string}
-        
-       
-
     let localConnectionString =
         let serverDirectory = new DirectoryInfo(@"C:\Program Files\Microsoft SQL Server")
         let version = serverDirectory.GetDirectories("LocalDb", SearchOption.AllDirectories)
@@ -31,7 +27,7 @@
         let guid = Guid.NewGuid().ToString("N")
         sprintf "SqlJuxt-%s-%s" time guid
      
-    let runScript connString (script:string) =
+    let run connString (script:string) =
         use conn = new SqlConnection(connString)
 
         try conn.Open() 
@@ -45,7 +41,7 @@
 
     let runScriptOnMaster =
         let masterConnectionString = getCatalogConnectionString "master"
-        runScript masterConnectionString
+        run masterConnectionString
 
     let dropDatabase dbName =
         let script = sprintf @"USE master;
@@ -53,10 +49,10 @@ ALTER DATABASE [%s] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 DROP DATABASE [%s] ;" dbName dbName
         runScriptOnMaster script |> ignore
         
-    type DisposableDatabase(database:Database) =
+    type DisposableDatabase(name, connectionString) =
 
-        member this.ConnectionString = database.ConnectionString
-        member this.Name = database.Name
+        member this.ConnectionString = connectionString
+        member this.Name = name
 
         interface System.IDisposable with 
             member this.Dispose() = 
@@ -68,10 +64,13 @@ DROP DATABASE [%s] ;" dbName dbName
         
         let result = runScriptOnMaster script
 
-        new DisposableDatabase {Name = dbName; ConnectionString = getCatalogConnectionString dbName}
+        new DisposableDatabase (dbName, getCatalogConnectionString dbName)
+
+    let runScript (database:DisposableDatabase) script =
+        run database.ConnectionString script
 
 
-        
+            
 
 
     
