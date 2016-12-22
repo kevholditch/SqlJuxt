@@ -7,3 +7,8 @@ module DatabaseTypes =
     type Column = IntColumn of IntegerColumn | VarColumn of VarcharColumn
     type Table = {name: string; columns: Column list}
     type Schema = {tables: Table list}
+
+    
+    type DatabaseDifferences = {missingTables: Table list}
+
+    type ComparisonResult = IsMatch | Differences of DatabaseDifferences

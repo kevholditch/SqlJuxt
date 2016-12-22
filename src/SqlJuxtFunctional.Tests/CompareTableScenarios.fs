@@ -5,8 +5,13 @@
     open SqlJuxtFunctional.Comparer
     open FsUnit
     open FsUnit.Xunit
+    open SqlJuxtFunctional.DatabaseTypes
     open SqlJuxtFunctional.TestLocalDatabase
-
+    
+    let extractDifferences r =
+        match r with
+        | Differences(r') -> r'
+        | _ -> failwith "expected databases to be different but they are a match"
 
     [<Fact>]
     let ``should return identical when two tables are the same``() =
@@ -19,10 +24,10 @@
 
         runScript left table
         runScript right table
-
+        
         loadSchema left.ConnectionString
             |> compareWith right.ConnectionString
-            |> should equal true
+            |> should equal IsMatch
 
      
     [<Fact>]
@@ -35,11 +40,15 @@
                         |> Build 
         
         runScript right table
-
+        
         let result = loadSchema left.ConnectionString
                         |> compareWith right.ConnectionString
-           
-        result |> should equal false
+                        |> extractDifferences
+        
+        result.missingTables.Length |> should equal 1
+               
+        
+        
         
         
 

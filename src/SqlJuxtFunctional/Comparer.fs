@@ -6,9 +6,8 @@ module Comparer =
     open System
     open SqlJuxtFunctional.DatabaseTypes
 
-    type ColumnEntity = {Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }
-            
-    type ComparisonResult = {IsIdentical: bool; }
+    type ColumnEntity = {Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }            
+    
 
     let getColumns connection =
         connection
@@ -17,14 +16,11 @@ module Comparer =
                                                                              from INFORMATION_SCHEMA.COLUMNS
                                                                              order by TABLE_NAME, ORDINAL_POSITION"
         
-    let getIsNullable c =
-        match c.IsNullable with
-           | "YES" -> true
-           | _ -> false
-
     let getColumn (c:ColumnEntity) =
 
-        let isNullable = getIsNullable c
+        let isNullable = match c.IsNullable with
+                           | "YES" -> true
+                           | _ -> false
 
         match c.DataType with
             | "int" -> IntColumn {name = c.ColumnName; isNullable = isNullable}
@@ -36,7 +32,7 @@ module Comparer =
                              |> Seq.map(fun (tableName, cols) -> {name = tableName; columns = cols |> Seq.map(getColumn) |> Seq.toList})
                              |> Seq.toList
 
-        {Schema.tables = tables}
+        {tables = tables}
 
     let loadSchema connectionString =        
         use connection = new SqlConnection(connectionString)
@@ -45,7 +41,9 @@ module Comparer =
 
   
     let compareDatabases leftSchema rightSchema =
-        leftSchema = rightSchema
+        match leftSchema = rightSchema with
+            | true -> IsMatch
+            | false -> Differences { missingTables = []}
 
     let compareWith rightConnString leftSchema =
         let rightSchema = loadSchema rightConnString
