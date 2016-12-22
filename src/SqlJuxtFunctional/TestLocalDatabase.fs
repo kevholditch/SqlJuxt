@@ -1,4 +1,6 @@
-﻿module TestLocalDatabase
+﻿namespace SqlJuxtFunctional
+
+module TestLocalDatabase =
 
     open System
     open System.IO

@@ -5,7 +5,7 @@
     open SqlJuxtFunctional.Comparer
     open FsUnit
     open FsUnit.Xunit
-    open TestLocalDatabase
+    open SqlJuxtFunctional.TestLocalDatabase
 
 
     [<Fact>]
@@ -20,8 +20,26 @@
         runScript left table
         runScript right table
 
-        Compare left.ConnectionString right.ConnectionString 
+        loadSchema left.ConnectionString
+            |> compareWith right.ConnectionString
             |> should equal true
+
+     
+    [<Fact>]
+    let ``should return missing table names when tables are missing``() =
+        use left = createDatabase()
+        use right = createDatabase()
+     
+        let table = CreateTable "TestTable"
+                        |> WithNullableInt "Column1"
+                        |> Build 
+        
+        runScript right table
+
+        let result = loadSchema left.ConnectionString
+                        |> compareWith right.ConnectionString
+           
+        result |> should equal false
         
         
 
