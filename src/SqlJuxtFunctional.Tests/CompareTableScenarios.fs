@@ -48,11 +48,7 @@
         result.missingTables.Length |> should equal 1
                
         
-        
-        
-        
 
-        
         
          
 
