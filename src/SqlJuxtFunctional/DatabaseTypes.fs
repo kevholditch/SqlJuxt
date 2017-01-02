@@ -8,7 +8,8 @@ module DatabaseTypes =
     type Table = {name: string; columns: Column list}
     type Schema = {tables: Table list}
 
+    type TableDifference = {left: Table; right: Table}
     
-    type DatabaseDifferences = {missingTables: Table list}
+    type DatabaseDifferences = {missingTables: Table list; differentTables: TableDifference list}
 
     type ComparisonResult = IsMatch | Differences of DatabaseDifferences

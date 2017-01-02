@@ -40,10 +40,11 @@ module Comparer =
                    |> buildSchema  
 
   
-    let compareDatabases leftSchema rightSchema =
+    let compareDatabases (leftSchema:Schema) (rightSchema:Schema) =
         match leftSchema = rightSchema with
             | true -> IsMatch
-            | false -> Differences { missingTables = []}
+            | false -> Differences {missingTables = rightSchema.tables |> Seq.where(fun t -> not (leftSchema.tables |>  Seq.contains(t))) |> Seq.toList;
+                                    differentTables = []}
 
     let compareWith rightConnString leftSchema =
         let rightSchema = loadSchema rightConnString
