@@ -39,12 +39,22 @@ module Comparer =
         connection |> getColumns
                    |> buildSchema  
 
-  
     let compareDatabases (leftSchema:Schema) (rightSchema:Schema) =
         match leftSchema = rightSchema with
             | true -> IsMatch
-            | false -> Differences {missingTables = rightSchema.tables |> Seq.where(fun t -> not (leftSchema.tables |>  Seq.contains(t))) |> Seq.toList;
-                                    differentTables = []}
+            | false ->  let matches = rightSchema.tables|> List.map (fun r -> (leftSchema.tables |> List.tryFind(fun l -> l.name = r.name), r)) 
+                        let s = matches |> List.filter (fun (l,r) -> match (l,r) with 
+                                                                                | (Some l, r) -> true
+                                                                                | _ -> false)
+                                        |> List.map (fun (l, r) -> (l.Value, r))
+
+                        Differences {
+                                     missingTables = matches |> List.filter (fun (l,r) -> match (l,r) with 
+                                                                                            | (Some l, r) -> false
+                                                                                            | _ -> true) |> List.map(fun (l, r) -> r);
+                                     differentTables = s |> List.filter(fun (l, r) -> l <> r) 
+                                                         |> List.map( fun(l, r) -> {left = l; right = r } )
+                                     }
 
     let compareWith rightConnString leftSchema =
         let rightSchema = loadSchema rightConnString
