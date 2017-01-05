@@ -43,13 +43,16 @@ module Comparer =
         match leftSchema = rightSchema with
             | true -> IsMatch
             | false ->  let matches = rightSchema.tables|> List.map (fun r -> (leftSchema.tables |> List.tryFind(fun l -> l.name = r.name), r)) 
-                        let s = matches |> List.filter (fun (l,r) -> match (l,r) with 
-                                                                                | (Some l, r) -> true
+                        let s = matches |> List.filter (fun (l,r) -> match  (l, r ) with 
+                                                                                | (Some l, r ) -> true
                                                                                 | _ -> false)
-                                        |> List.map (fun (l, r) -> (l.Value, r))
+                                        |> List.map (fun (l, r) -> match (l, r ) with 
+                                                                    | (Some l, r ) -> (l, r )
+                                                                    | _ -> failwith "Found a missing table")
+
 
                         Differences {
-                                     missingTables = matches |> List.filter (fun (l,r) -> match (l,r) with 
+                                     missingTables = matches |> List.filter (fun (l, r) -> match (l, r) with 
                                                                                             | (Some l, r) -> false
                                                                                             | _ -> true) |> List.map(fun (l, r) -> r);
                                      differentTables = s |> List.filter(fun (l, r) -> l <> r) 
@@ -60,10 +63,5 @@ module Comparer =
         let rightSchema = loadSchema rightConnString
         compareDatabases leftSchema rightSchema 
 
-    
 
-    
-
-
-    
 
