@@ -35,16 +35,27 @@ module DatabaseBuilder =
                                             | IntColumn i -> i.name
                                             | VarColumn v -> v.name)
 
-        let private getColumnsByNames columnNames table =
-            columnNames |> List.map(fun c -> table.columns |> List.find(fun col ->  match col with
-                                                                                        | IntColumn i when i.name = c -> true 
-                                                                                        | VarColumn v when v.name = c -> true
-                                                                                        | _ -> failwithf "no column exists named %s on table %s" c table.name))
+        let private getColumnsByNames (columnNames: (string * SortDirection) list) table =
+            columnNames |> List.map(fun (c,d) -> let column = table.columns |> List.find(fun col ->  match col with
+                                                                                            | IntColumn i when i.name = c -> true 
+                                                                                            | VarColumn v when v.name = c -> true
+                                                                                            | _ -> failwithf "no column exists named %s on table %s" c table.name)
+                                                 (column, d))
+                                                              
 
-        let WithPrimaryKeyNamed keyName (columnNames:string list) table =
-            let cs = getColumnsByNames columnNames table
+        let WithPrimaryKeyNamed keyName columns table =
+            let cs = getColumnsByNames columns table
             {table with primaryKey = Some {name = keyName; columns = cs}}
        
+        let getDirectionString direction =
+            match direction with
+                | ASC -> "ASC"
+                | DESC -> "DESC"
+
+        let getNameFromColumn c =
+            match c with
+                | IntColumn i -> i.name
+                | VarColumn v -> v.name
 
         let Build table =
             let openScript = sprintf "CREATE TABLE [dbo].[%s](" table.name
@@ -58,8 +69,10 @@ module DatabaseBuilder =
                             |> fun cols -> String.Join(", ", cols)
 
             let primaryKeyScript = match table.primaryKey with
-                                    | Some key ->   let columnNames = getColumnNames key.columns |> List.map(fun c -> sprintf "[%s] ASC" c) |> fun c -> String.Join(", ", c)
-                                                    sprintf "%s%sALTER TABLE [dbo].[%s] ADD CONSTRAINT [%s] PRIMARY KEY CLUSTERED (%s)%sGO" Environment.NewLine Environment.NewLine table.name key.name columnNames Environment.NewLine
+                                    | Some key ->   let cols = key.columns 
+                                                                    |> List.map(fun (c,d) -> sprintf "[%s] %s" (getNameFromColumn c) (getDirectionString d))              
+                                                                    |> fun c -> String.Join(", ", c)
+                                                    sprintf "%s%sALTER TABLE [dbo].[%s] ADD CONSTRAINT [%s] PRIMARY KEY CLUSTERED (%s)%sGO" Environment.NewLine Environment.NewLine table.name key.name cols Environment.NewLine
                                     | None -> ""
 
             openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript

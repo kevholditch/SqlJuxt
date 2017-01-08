@@ -6,6 +6,7 @@ open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
 
     module TableBuilderTests =
         open Xunit
+        open SqlJuxtFunctional.DatabaseTypes
 
         [<Fact>]
         let ``should be able to build a table with a single nullable int column``() =
@@ -51,14 +52,25 @@ GO"
 GO"
 
         [<Fact>]
-        let ``should be able to build a table with a clustered primary key on a single column``() =
+        let ``should be able to build a table with a clustered primary key on a single column asc``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyColumn"
-                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" ["MyKeyColumn"]
+                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyColumn", ASC)]
                 |> Build 
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL )
 GO
 
 ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC)
+GO"
+        [<Fact>]
+        let ``should be able to build a table with a clustered primary key on a single column desc``() =
+            CreateTable "MyPrimaryKeyTable"
+                |> WithInt "MyKeyOtherColumn"
+                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyOtherColumn", DESC)]
+                |> Build 
+                |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyOtherColumn] [int] NOT NULL )
+GO
+
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyOtherColumn] DESC)
 GO"
         
