@@ -29,7 +29,7 @@ module Comparer =
 
     let buildSchema columns  =
         let tables = columns |> Seq.groupBy(fun c -> c.TableName)
-                             |> Seq.map(fun (tableName, cols) -> {name = tableName; columns = cols |> Seq.map(getColumn) |> Seq.toList})
+                             |> Seq.map(fun (tableName, cols) -> {name = tableName; columns = cols |> Seq.map(getColumn) |> Seq.toList; primaryKey = None})
                              |> Seq.toList
 
         {tables = tables}

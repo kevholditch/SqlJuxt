@@ -50,4 +50,15 @@ GO"
                 |> should equal @"CREATE TABLE [dbo].[MultiColumnTable]( [MyVarchar] [varchar](10) NOT NULL, [MyInt] [int] NOT NULL, [NullVarchar] [varchar](55) NULL, [NullInt] [int] NULL )
 GO"
 
+        [<Fact>]
+        let ``should be able to build a table with a clustered primary key on a single column``() =
+            CreateTable "MyPrimaryKeyTable"
+                |> WithInt "MyKeyColumn"
+                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" ["MyKeyColumn"]
+                |> Build 
+                |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL )
+GO
 
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC)
+GO"
+        

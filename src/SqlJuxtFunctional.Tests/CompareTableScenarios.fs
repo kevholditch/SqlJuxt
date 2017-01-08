@@ -1,4 +1,6 @@
-﻿module CompareTableScenarios
+﻿namespace SqlJuxtFunctionalTests
+
+module CompareTableScenarios =
 
     open Xunit
     open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
