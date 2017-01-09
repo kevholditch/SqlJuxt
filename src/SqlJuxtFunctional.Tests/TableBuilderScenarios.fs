@@ -65,12 +65,27 @@ GO"
         [<Fact>]
         let ``should be able to build a table with a clustered primary key on a single column desc``() =
             CreateTable "MyPrimaryKeyTable"
-                |> WithInt "MyKeyOtherColumn"
+                |> WithInt "MyKeyOtherColumn"                
                 |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyOtherColumn", DESC)]
                 |> Build 
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyOtherColumn] [int] NOT NULL )
 GO
 
 ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyOtherColumn] DESC)
+GO"
+
+        [<Fact>]
+        let ``should be able to build a table with a clustered primary key on a mulitple columns``() =
+            CreateTable "MyPrimaryKeyTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithVarchar "ThirdCol" 50
+                |> WithVarchar "ForthCol" 10
+                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
+                |> Build 
+                |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL, [ThirdCol] [varchar](50) NOT NULL, [ForthCol] [varchar](10) NOT NULL )
+GO
+
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
 GO"
         

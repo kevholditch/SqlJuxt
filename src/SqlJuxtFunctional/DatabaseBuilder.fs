@@ -36,11 +36,13 @@ module DatabaseBuilder =
                                             | VarColumn v -> v.name)
 
         let private getColumnsByNames (columnNames: (string * SortDirection) list) table =
-            columnNames |> List.map(fun (c,d) -> let column = table.columns |> List.find(fun col ->  match col with
+            columnNames |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
                                                                                             | IntColumn i when i.name = c -> true 
                                                                                             | VarColumn v when v.name = c -> true
-                                                                                            | _ -> failwithf "no column exists named %s on table %s" c table.name)
-                                                 (column, d))
+                                                                                            | _ -> false)
+                                                 match column with 
+                                                    | Some col -> (col, d)
+                                                    | None -> failwithf "no column named %s exists on table %s" c table.name )                                                 
                                                               
 
         let WithPrimaryKeyNamed keyName columns table =
