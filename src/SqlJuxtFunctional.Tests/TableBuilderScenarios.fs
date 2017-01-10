@@ -1,13 +1,13 @@
-﻿namespace SqlJuxtFunctionalTests
+﻿namespace SqlJuxtFunctionalTests.Tests.TableBuilder
 
 
 open FsUnit
 open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
+open Xunit
+open SqlJuxtFunctional.DatabaseTypes
 
-    module TableBuilderTests =
-        open Xunit
-        open SqlJuxtFunctional.DatabaseTypes
-
+    module CreateColumnTests =
+           
         [<Fact>]
         let ``should be able to build a table with a single nullable int column``() =
             CreateTable "TestTable"
@@ -51,27 +51,29 @@ GO"
                 |> should equal @"CREATE TABLE [dbo].[MultiColumnTable]( [MyVarchar] [varchar](10) NOT NULL, [MyInt] [int] NOT NULL, [NullVarchar] [varchar](55) NULL, [NullInt] [int] NULL )
 GO"
 
+    module PrimaryKeyTests =
+
         [<Fact>]
         let ``should be able to build a table with a clustered primary key on a single column asc``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyColumn"
-                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyColumn", ASC)]
+                |> WithClusteredPrimaryKey [("MyKeyColumn", ASC)]
                 |> Build 
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL )
 GO
 
-ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC)
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC)
 GO"
         [<Fact>]
         let ``should be able to build a table with a clustered primary key on a single column desc``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyOtherColumn"                
-                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyOtherColumn", DESC)]
+                |> WithClusteredPrimaryKey [("MyKeyOtherColumn", DESC)]
                 |> Build 
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyOtherColumn] [int] NOT NULL )
 GO
 
-ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyOtherColumn] DESC)
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyOtherColumn] DESC)
 GO"
 
         [<Fact>]
@@ -81,11 +83,26 @@ GO"
                 |> WithInt "SecondKeyColumn"
                 |> WithVarchar "ThirdCol" 50
                 |> WithVarchar "ForthCol" 10
-                |> WithPrimaryKeyNamed "PK_MyPrimaryKey" [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
+                |> WithClusteredPrimaryKey [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
                 |> Build 
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL, [ThirdCol] [varchar](50) NOT NULL, [ForthCol] [varchar](10) NOT NULL )
 GO
 
-ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKey] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
+ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
+GO"
+
+        [<Fact>]
+        let ``should be able to build a table with a non clustered primary key on a mulitple columns``() =
+            CreateTable "RandomTableName"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithVarchar "ThirdCol" 50
+                |> WithVarchar "ForthCol" 10
+                |> WithNonClusteredPrimaryKey [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
+                |> Build 
+                |> should equal @"CREATE TABLE [dbo].[RandomTableName]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL, [ThirdCol] [varchar](50) NOT NULL, [ForthCol] [varchar](10) NOT NULL )
+GO
+
+ALTER TABLE [dbo].[RandomTableName] ADD CONSTRAINT [PK_RandomTableName] PRIMARY KEY NONCLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
 GO"
         

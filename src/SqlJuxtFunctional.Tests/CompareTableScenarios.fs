@@ -1,4 +1,4 @@
-﻿namespace SqlJuxtFunctionalTests
+﻿namespace SqlJuxtFunctionalTests.Scenarios
 
 module CompareTableScenarios =
 

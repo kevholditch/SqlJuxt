@@ -44,10 +44,15 @@ module DatabaseBuilder =
                                                     | Some col -> (col, d)
                                                     | None -> failwithf "no column named %s exists on table %s" c table.name )                                                 
                                                               
-
-        let WithPrimaryKeyNamed keyName columns table =
+        let private withPrimaryKey columns table isClustered =
             let cs = getColumnsByNames columns table
-            {table with primaryKey = Some {name = keyName; columns = cs}}
+            {table with primaryKey = Some {name = sprintf "PK_%s" table.name; columns = cs; isClustered = isClustered}}
+            
+        let WithClusteredPrimaryKey columns table =
+            withPrimaryKey columns table true
+
+        let WithNonClusteredPrimaryKey columns table =
+            withPrimaryKey columns table false
        
         let getDirectionString direction =
             match direction with
@@ -74,7 +79,10 @@ module DatabaseBuilder =
                                     | Some key ->   let cols = key.columns 
                                                                     |> List.map(fun (c,d) -> sprintf "[%s] %s" (getNameFromColumn c) (getDirectionString d))              
                                                                     |> fun c -> String.Join(", ", c)
-                                                    sprintf "%s%sALTER TABLE [dbo].[%s] ADD CONSTRAINT [%s] PRIMARY KEY CLUSTERED (%s)%sGO" Environment.NewLine Environment.NewLine table.name key.name cols Environment.NewLine
+                                                    let clustered = match key.isClustered with
+                                                                        | true -> "CLUSTERED"
+                                                                        | false -> "NONCLUSTERED"
+                                                    sprintf "%s%sALTER TABLE [dbo].[%s] ADD CONSTRAINT [%s] PRIMARY KEY %s (%s)%sGO" Environment.NewLine Environment.NewLine table.name key.name clustered cols Environment.NewLine
                                     | None -> ""
 
             openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript
