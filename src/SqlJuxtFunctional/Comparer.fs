@@ -7,7 +7,7 @@ module Comparer =
     open SqlJuxtFunctional.DatabaseTypes
 
     type ColumnEntity = {Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }            
-    type PrimaryKeyEntity = {Schema:string; TableName:string; PrimaryKeyName:string; KeyOrdinal:string; ColumnName:string; IsDescending:string; TypeDescription: string; }
+    type PrimaryKeyEntity = {Schema:string; TableName:string; PrimaryKeyName:string; KeyOrdinal:byte; ColumnName:string; IsDescending:bool; IsClustered: bool; }
 
     let private getColumns connection =
         connection
@@ -36,7 +36,7 @@ module Comparer =
 		ic.key_ordinal ""KeyOrdinal"", 
 		c.name AS ColumnName, 
 		ic.is_descending_key ""IsDescending"",
-		i.type_desc ""TypeDescription""
+		CASE WHEN i.type_desc = 'CLUSTERED' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS ""IsClustered""
 from sys.objects o
 inner join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 1
 inner join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
@@ -47,8 +47,23 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
         |> Seq.toList
 
     let private buildSchema (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
+        
         let tables = columns |> List.groupBy(fun c -> (c.Schema, c.TableName))
-                             |> List.map(fun ((schema, tableName), cols) -> {schema = schema; name = tableName; columns = cols |> Seq.map(mapColumnEntity) |> Seq.toList; primaryKey = None})                      
+                             |> List.map(fun ((schema, tableName), cols) -> 
+                                    let columns = cols |> List.map(mapColumnEntity)
+                                    let tableKeys = primaryKeys |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
+                                    let primaryKey = match tableKeys with
+                                                            | x::xs -> Some {
+                                                                                name = x.PrimaryKeyName; 
+                                                                                columns = x::xs |> List.map(fun k -> let col = columns |> List.find(fun c -> (getColumnName c) = k.ColumnName)
+                                                                                                                     let dir = match k.IsDescending with
+                                                                                                                                 | true -> DESC
+                                                                                                                                 | false -> ASC
+                                                                                                                     (col, dir))
+                                                                                isClustered = x.IsClustered
+                                                                            }
+                                                            | _ -> None
+                                    {schema = schema; name = tableName; columns = columns; primaryKey = primaryKey})                      
         {tables = tables}
 
     let loadSchema connectionString =        

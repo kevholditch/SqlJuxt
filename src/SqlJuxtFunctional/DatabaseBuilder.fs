@@ -31,9 +31,7 @@ module DatabaseBuilder =
             withVarchar name false length table
 
         let private getColumnNames columns =
-            columns |> List.map(fun c -> match c with
-                                            | IntColumn i -> i.name
-                                            | VarColumn v -> v.name)
+            columns |> List.map(getColumnName)
 
         let private getColumnsByNames (columnNames: (string * SortDirection) list) table =
             columnNames |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
