@@ -7,16 +7,17 @@ module Comparer =
     open SqlJuxtFunctional.DatabaseTypes
 
     type ColumnEntity = {Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }            
-    
+    type PrimaryKeyEntity = {Schema:string; TableName:string; PrimaryKeyName:string; KeyOrdinal:string; ColumnName:string; IsDescending:string; TypeDescription: string; }
 
-    let getColumns connection =
+    let private getColumns connection =
         connection
         |> dapperQuery<ColumnEntity> @"select TABLE_SCHEMA as ""Schema"", TABLE_NAME as ""TableName"",   COLUMN_NAME as ""ColumnName"", ORDINAL_POSITION as ""OrdinalPosition"",
 		                                                                            COLUMN_DEFAULT as ""Default"", IS_NULLABLE as ""IsNullable"", DATA_TYPE as ""DataType"", CHARACTER_MAXIMUM_LENGTH as ""CharacterMaxLength""
                                                                              from INFORMATION_SCHEMA.COLUMNS
                                                                              order by TABLE_NAME, ORDINAL_POSITION"
+        |> Seq.toList
         
-    let getColumn (c:ColumnEntity) =
+    let private mapColumnEntity (c:ColumnEntity) =
 
         let isNullable = match c.IsNullable with
                            | "YES" -> true
@@ -27,17 +28,34 @@ module Comparer =
             | "varchar" -> VarColumn {name = c.ColumnName; isNullable = isNullable; length = c.CharacterMaxLength.Value}
             | _ -> failwithf "unknown column type %s" c.DataType
 
-    let buildSchema columns  =
-        let tables = columns |> Seq.groupBy(fun c -> c.TableName)
-                             |> Seq.map(fun (tableName, cols) -> {name = tableName; columns = cols |> Seq.map(getColumn) |> Seq.toList; primaryKey = None})
-                             |> Seq.toList
+    let private getPrimaryKeys connection =
+        connection 
+        |> dapperQuery<PrimaryKeyEntity> @"SELECT  OBJECT_SCHEMA_NAME(o.parent_object_id) AS [Schema], 
+		OBJECT_NAME(o.parent_object_id) AS TableName, 
+		o.name AS PrimaryKeyName, 
+		ic.key_ordinal ""KeyOrdinal"", 
+		c.name AS ColumnName, 
+		ic.is_descending_key ""IsDescending"",
+		i.type_desc ""TypeDescription""
+from sys.objects o
+inner join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 1
+inner join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
+inner join sys.columns c on c.object_id = o.parent_object_id and c.column_id = ic.column_id
+inner join sys.types t ON t.user_type_id = c.user_type_id
+where o.type = 'PK'
+ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id), ic.key_ordinal"
+        |> Seq.toList
 
+    let private buildSchema (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
+        let tables = columns |> List.groupBy(fun c -> (c.Schema, c.TableName))
+                             |> List.map(fun ((schema, tableName), cols) -> {schema = schema; name = tableName; columns = cols |> Seq.map(mapColumnEntity) |> Seq.toList; primaryKey = None})                      
         {tables = tables}
 
     let loadSchema connectionString =        
         use connection = new SqlConnection(connectionString)
-        connection |> getColumns
-                   |> buildSchema  
+        let columns = connection |> getColumns
+        let primaryKeys = connection |> getPrimaryKeys
+        buildSchema columns primaryKeys
 
     let compareDatabases (leftSchema:Schema) (rightSchema:Schema) =
         match leftSchema = rightSchema with

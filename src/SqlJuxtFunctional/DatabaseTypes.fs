@@ -7,7 +7,7 @@ module DatabaseTypes =
     type Column = IntColumn of IntegerColumn | VarColumn of VarcharColumn
     type SortDirection = ASC | DESC
     type Constraint = {name: string; columns: (Column * SortDirection)  list; isClustered: bool}
-    type Table = {name: string; columns: Column list; primaryKey: Constraint option}
+    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option}
     type Schema = {tables: Table list}
 
 

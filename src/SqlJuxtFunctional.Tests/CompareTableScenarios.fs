@@ -21,7 +21,10 @@ module CompareTableScenarios =
         use right = createDatabase()
      
         let table = CreateTable "TestTable"
-                        |> WithNullableInt "Column1"
+                        |> WithInt "Column1"
+                        |> WithVarchar "Column2" 10
+                        |> WithInt "Column3"
+                        |> WithClusteredPrimaryKey [("Column1", ASC); ("Column3", DESC)]
                         |> Build 
 
         runScript left table
@@ -166,6 +169,65 @@ module CompareTableScenarios =
         let rightTable = CreateTable "TestTable"
                         |> WithVarchar "Column2" 20
                         |> WithInt "Column1"
+                        |> Build 
+        
+        runScript right rightTable
+        
+        let result = loadSchema left.ConnectionString
+                        |> compareWith right.ConnectionString
+                        |> extractDifferences
+        
+        result.differentTables.Length |> should equal 1
+        result.differentTables.Head.left.name |> should equal "TestTable"
+        result.differentTables.Head.right.name |> should equal "TestTable"
+
+    [<Fact>]
+    let ``should return different table names when one table has a primary key and the other does not``() =
+        use left = createDatabase()
+        use right = createDatabase()
+     
+        let leftTable = CreateTable "TestTable"
+                        |> WithInt "Column1"
+                        |> WithVarchar "Column2" 20
+                        |> WithClusteredPrimaryKey [("Column1", ASC)]
+                        |> Build 
+        
+        runScript left leftTable
+
+        let rightTable = CreateTable "TestTable"
+                        |> WithInt "Column1"
+                        |> WithVarchar "Column2" 20
+                        |> Build 
+        
+        runScript right rightTable
+        
+        let result = loadSchema left.ConnectionString
+                        |> compareWith right.ConnectionString
+                        |> extractDifferences
+        
+        result.differentTables.Length |> should equal 1
+        result.differentTables.Head.left.name |> should equal "TestTable"
+        result.differentTables.Head.right.name |> should equal "TestTable"
+
+    [<Fact>]
+    let ``should return different table names when tables have different primary keys``() =
+        use left = createDatabase()
+        use right = createDatabase()
+     
+        let leftTable = CreateTable "DifferentKeyTable"
+                        |> WithInt "Column1"
+                        |> WithInt "Column2" 
+                        |> WithInt "Column3" 
+                        |> WithClusteredPrimaryKey [("Column1", ASC)]
+                        |> Build 
+        
+        runScript left leftTable
+
+        let rightTable = CreateTable "DifferentKeyTable"
+                        |> WithInt "Column1"
+                        |> WithInt "Column2" 
+                        |> WithInt "Column3" 
+                        |> WithClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
                         |> Build 
         
         runScript right rightTable

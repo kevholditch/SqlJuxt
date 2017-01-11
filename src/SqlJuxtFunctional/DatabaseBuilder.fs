@@ -8,7 +8,7 @@ module DatabaseBuilder =
         open DatabaseTypes
 
         let CreateTable name =
-            {name = name; columns = []; primaryKey = None}
+            {schema = "dbo"; name = name; columns = []; primaryKey = None}
 
         let private withInt name nullable table =
             let c = IntColumn {name = name; isNullable = nullable}
