@@ -60,7 +60,9 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                                                                                                                  | true -> DESC
                                                                                                                                  | false -> ASC
                                                                                                                      (col, dir))
-                                                                                isClustered = x.IsClustered
+                                                                                Clustering = match x.IsClustered with
+                                                                                                | true -> CLUSTERED
+                                                                                                | false -> NONCLUSTERED
                                                                             }
                                                             | _ -> None
                                     {schema = schema; name = tableName; columns = columns; primaryKey = primaryKey})                      
