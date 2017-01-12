@@ -30,7 +30,7 @@ module CompareTableScenarios =
         runScript left table
         runScript right table
         
-        loadSchema left.ConnectionString
+        loadCatalog left.ConnectionString
             |> compareWith right.ConnectionString
             |> should equal IsMatch
 
@@ -46,7 +46,7 @@ module CompareTableScenarios =
         
         runScript right table
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -72,7 +72,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -96,7 +96,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -121,7 +121,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -146,7 +146,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -173,7 +173,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -201,7 +201,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -232,7 +232,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -263,7 +263,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -294,7 +294,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         
@@ -325,7 +325,7 @@ module CompareTableScenarios =
         
         runScript right rightTable
         
-        let result = loadSchema left.ConnectionString
+        let result = loadCatalog left.ConnectionString
                         |> compareWith right.ConnectionString
                         |> extractDifferences
         

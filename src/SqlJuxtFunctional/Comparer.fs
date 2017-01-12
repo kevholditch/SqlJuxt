@@ -46,7 +46,7 @@ where o.type = 'PK'
 ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id), ic.key_ordinal"
         |> Seq.toList
 
-    let private buildSchema (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
+    let private buildCatalog (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
         
         let tables = columns |> List.groupBy(fun c -> (c.Schema, c.TableName))
                              |> List.map(fun ((schema, tableName), cols) -> 
@@ -68,16 +68,16 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                     {schema = schema; name = tableName; columns = columns; primaryKey = primaryKey})                      
         {tables = tables}
 
-    let loadSchema connectionString =        
+    let loadCatalog connectionString =        
         use connection = new SqlConnection(connectionString)
         let columns = connection |> getColumns
         let primaryKeys = connection |> getPrimaryKeys
-        buildSchema columns primaryKeys
+        buildCatalog columns primaryKeys
 
-    let compareDatabases (leftSchema:Schema) (rightSchema:Schema) =
-        match leftSchema = rightSchema with
+    let compareDatabases left right =
+        match left = right with
             | true -> IsMatch
-            | false ->  let matches = rightSchema.tables|> List.map (fun r -> (leftSchema.tables |> List.tryFind(fun l -> l.name = r.name), r)) 
+            | false ->  let matches = right.tables|> List.map (fun r -> (left.tables |> List.tryFind(fun l -> l.name = r.name), r)) 
                         let s = matches |> List.filter (fun (l,r) -> match  (l, r ) with 
                                                                                 | (Some l, r ) -> true
                                                                                 | _ -> false)
@@ -94,9 +94,9 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                                          |> List.map( fun(l, r) -> {left = l; right = r } )
                                      }
 
-    let compareWith rightConnString leftSchema =
-        let rightSchema = loadSchema rightConnString
-        compareDatabases leftSchema rightSchema 
+    let compareWith rightConnString left =
+        let right = loadCatalog rightConnString
+        compareDatabases left right 
 
 
 

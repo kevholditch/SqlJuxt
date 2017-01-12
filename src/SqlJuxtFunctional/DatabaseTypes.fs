@@ -9,7 +9,7 @@ module DatabaseTypes =
     type Clustering = CLUSTERED | NONCLUSTERED
     type Constraint = {name: string; columns: (Column * SortDirection)  list; Clustering: Clustering}
     type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option}
-    type Schema = {tables: Table list}
+    type Catalog = {tables: Table list}
 
     type TableDifference = {left: Table; right: Table}
     type DatabaseDifferences = {missingTables: Table list; differentTables: TableDifference list}
