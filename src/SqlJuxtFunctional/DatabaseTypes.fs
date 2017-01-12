@@ -22,3 +22,8 @@ module DatabaseTypes =
 
     let getColumnNames c =
             c |> List.map(getColumnName)
+
+    let getDirectionString direction =
+            match direction with
+                | ASC -> "ASC"
+                | DESC -> "DESC"

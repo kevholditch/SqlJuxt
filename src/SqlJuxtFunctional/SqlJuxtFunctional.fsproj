@@ -55,6 +55,7 @@
     <Compile Include="DapperFSharp.fs" />
     <Compile Include="DatabaseTypes.fs" />
     <Compile Include="TestLocalDatabase.fs" />
+    <Compile Include="DatabaseScripter.fs" />
     <Compile Include="DatabaseBuilder.fs" />
     <Content Include="packages.config" />
     <Compile Include="Comparer.fs" />
