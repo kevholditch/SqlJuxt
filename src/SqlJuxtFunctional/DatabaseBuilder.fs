@@ -1,15 +1,17 @@
 ﻿namespace SqlJuxtFunctional
 
-
+open System
+open DatabaseTypes
+open DatabaseScripter
 
 module DatabaseBuilder =
+        
+        let CreateCatalog () =
+            {tables = []}
 
-    module TableBuilder =
-
-        open System
-        open DatabaseTypes
-        open DatabaseScripter
-
+        let WithTable table catalog =
+            {catalog with tables = table::catalog.tables}
+        
         let CreateTable name =
             {schema = "dbo"; name = name; columns = []; primaryKey = None}
 
@@ -49,8 +51,7 @@ module DatabaseBuilder =
         let WithClusteredPrimaryKey = WithPrimaryKey CLUSTERED
         let WithNonClusteredPrimaryKey = WithPrimaryKey NONCLUSTERED
 
-        let Build table =
-            ScriptTable table
+
 
 
 

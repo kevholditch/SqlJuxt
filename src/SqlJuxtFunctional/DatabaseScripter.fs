@@ -28,3 +28,6 @@ module DatabaseScripter =
 
         openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript
 
+    let Script catalog =
+        String.Join(Environment.NewLine, catalog.tables |> List.rev |> List.map(ScriptTable))
+

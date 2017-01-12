@@ -1,15 +1,17 @@
 ﻿namespace SqlJuxtFunctionalTests.Scenarios
 
+open Xunit
+open FsUnit
+open FsUnit.Xunit
+
+open SqlJuxtFunctional.Comparer
+open SqlJuxtFunctional.DatabaseBuilder
+open SqlJuxtFunctional.DatabaseScripter
+open SqlJuxtFunctional.DatabaseTypes
+open SqlJuxtFunctional.TestLocalDatabase
+
 module CompareTableScenarios =
 
-    open Xunit
-    open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
-    open SqlJuxtFunctional.Comparer
-    open FsUnit
-    open FsUnit.Xunit
-    open SqlJuxtFunctional.DatabaseTypes
-    open SqlJuxtFunctional.TestLocalDatabase
-    
     let extractDifferences r =
         match r with
         | Differences(r') -> r'
@@ -25,7 +27,7 @@ module CompareTableScenarios =
                         |> WithVarchar "Column2" 10
                         |> WithInt "Column3"
                         |> WithClusteredPrimaryKey [("Column1", ASC); ("Column3", DESC)]
-                        |> Build 
+                        |> ScriptTable 
 
         runScript left table
         runScript right table
@@ -42,7 +44,7 @@ module CompareTableScenarios =
      
         let table = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right table
         
@@ -61,14 +63,14 @@ module CompareTableScenarios =
         let leftTable = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
                         |> WithVarchar "Column2" 20
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "OtherTable"
                         |> WithNullableInt "Column1"
                         |> WithVarchar "Column2" 20
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -86,13 +88,13 @@ module CompareTableScenarios =
      
         let leftTable = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "TestTable"
                         |> WithNullableInt "Column2"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -111,13 +113,13 @@ module CompareTableScenarios =
      
         let leftTable = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "TestTable"
                         |> WithVarchar "Column1" 20
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -136,13 +138,13 @@ module CompareTableScenarios =
      
         let leftTable = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "TestTable"
                         |> WithInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -162,14 +164,14 @@ module CompareTableScenarios =
         let leftTable = CreateTable "TestTable"
                         |> WithNullableInt "Column1"
                         |> WithVarchar "Column2" 20
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "TestTable"
                         |> WithVarchar "Column2" 20
                         |> WithInt "Column1"
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -190,14 +192,14 @@ module CompareTableScenarios =
                         |> WithInt "Column1"
                         |> WithVarchar "Column2" 20
                         |> WithClusteredPrimaryKey [("Column1", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
         let rightTable = CreateTable "TestTable"
                         |> WithInt "Column1"
                         |> WithVarchar "Column2" 20
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -219,7 +221,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
@@ -228,7 +230,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -250,7 +252,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column2", ASC); ("Column1", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
@@ -259,7 +261,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -281,7 +283,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", DESC); ("Column2", DESC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
@@ -290,7 +292,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -312,7 +314,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithNonClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript left leftTable
 
@@ -321,7 +323,7 @@ module CompareTableScenarios =
                         |> WithInt "Column2" 
                         |> WithInt "Column3" 
                         |> WithClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)]
-                        |> Build 
+                        |> ScriptTable 
         
         runScript right rightTable
         
@@ -332,6 +334,52 @@ module CompareTableScenarios =
         result.differentTables.Length |> should equal 1
         result.differentTables.Head.left.name |> should equal "DifferentKeyTable"
         result.differentTables.Head.right.name |> should equal "DifferentKeyTable"
+
+    [<Fact>]
+    let ``should return differences for multiple tables where some are missing and some are different``() =
+        use left = createDatabase()
+        use right = createDatabase()
+     
+        let leftCatalog = CreateCatalog()
+                            |> WithTable (CreateTable "TableA"
+                                                |> WithInt "Column1"
+                                                |> WithInt "Column2" 
+                                                |> WithVarchar "Column3" 10
+                                                |> WithNonClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)])
+                            |> WithTable (CreateTable "TableB"
+                                                |> WithInt "Column1"
+                                                |> WithInt "Column2" 
+                                                |> WithInt "Column3" 
+                                                |> WithNonClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)])
+                            |> Script 
+        
+        runScript left leftCatalog
+
+        let rightCatalog = CreateCatalog()
+                            |> WithTable (CreateTable "TableA"
+                                                |> WithInt "Column1"
+                                                |> WithInt "Column2" 
+                                                |> WithInt "Column3" 
+                                                |> WithNonClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)])
+                            |> WithTable (CreateTable "TableC"
+                                                |> WithInt "Column1"
+                                                |> WithInt "Column2" 
+                                                |> WithInt "Column3" 
+                                                |> WithNonClusteredPrimaryKey [("Column1", ASC); ("Column2", ASC)])
+                            |> Script 
+        
+        runScript right rightCatalog
+        
+        let result = loadCatalog left.ConnectionString
+                        |> compareWith right.ConnectionString
+                        |> extractDifferences
+        
+        result.differentTables.Length |> should equal 1
+        result.differentTables.Head.left.name |> should equal "TableA"
+        result.differentTables.Head.right.name |> should equal "TableA"
+        result.missingTables.Length |> should equal 1
+        result.missingTables.Head.name |> should equal "TableC"
+
 
     
                

@@ -2,8 +2,9 @@
 
 
 open FsUnit
-open SqlJuxtFunctional.DatabaseBuilder.TableBuilder
 open Xunit
+open SqlJuxtFunctional.DatabaseBuilder
+open SqlJuxtFunctional.DatabaseScripter
 open SqlJuxtFunctional.DatabaseTypes
 
     module CreateColumnTests =
@@ -12,7 +13,7 @@ open SqlJuxtFunctional.DatabaseTypes
         let ``should be able to build a table with a single nullable int column``() =
             CreateTable "TestTable"
                 |> WithNullableInt "Column1"
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[TestTable]( [Column1] [int] NULL )
 GO"
 
@@ -20,7 +21,7 @@ GO"
         let ``should be able to build a table with a single non nullable int column``() =
             CreateTable "TestTable"
                 |> WithInt "Column1"
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[TestTable]( [Column1] [int] NOT NULL )
 GO"
 
@@ -28,7 +29,7 @@ GO"
         let ``should be able to build a table with a single nullable varchar column``() =
             CreateTable "VarTable"
                 |> WithNullableVarchar "MyVarchar" 45
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[VarTable]( [MyVarchar] [varchar](45) NULL )
 GO"
 
@@ -36,7 +37,7 @@ GO"
         let ``should be able to build a table with a single non nullable varchar column``() =
             CreateTable "VarTable"
                 |> WithVarchar "MyVarchar" 10
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[VarTable]( [MyVarchar] [varchar](10) NOT NULL )
 GO"
 
@@ -47,7 +48,7 @@ GO"
                 |> WithInt "MyInt"
                 |> WithNullableVarchar "NullVarchar" 55
                 |> WithNullableInt "NullInt"
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[MultiColumnTable]( [MyVarchar] [varchar](10) NOT NULL, [MyInt] [int] NOT NULL, [NullVarchar] [varchar](55) NULL, [NullInt] [int] NULL )
 GO"
 
@@ -58,7 +59,7 @@ GO"
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyColumn"
                 |> WithClusteredPrimaryKey [("MyKeyColumn", ASC)]
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL )
 GO
 
@@ -69,7 +70,7 @@ GO"
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyOtherColumn"                
                 |> WithClusteredPrimaryKey [("MyKeyOtherColumn", DESC)]
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyOtherColumn] [int] NOT NULL )
 GO
 
@@ -84,7 +85,7 @@ GO"
                 |> WithVarchar "ThirdCol" 50
                 |> WithVarchar "ForthCol" 10
                 |> WithClusteredPrimaryKey [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[MyPrimaryKeyTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL, [ThirdCol] [varchar](50) NOT NULL, [ForthCol] [varchar](10) NOT NULL )
 GO
 
@@ -99,10 +100,24 @@ GO"
                 |> WithVarchar "ThirdCol" 50
                 |> WithVarchar "ForthCol" 10
                 |> WithNonClusteredPrimaryKey [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC); ("ThirdCol", DESC)]
-                |> Build 
+                |> ScriptTable
                 |> should equal @"CREATE TABLE [dbo].[RandomTableName]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL, [ThirdCol] [varchar](50) NOT NULL, [ForthCol] [varchar](10) NOT NULL )
 GO
 
 ALTER TABLE [dbo].[RandomTableName] ADD CONSTRAINT [PK_RandomTableName] PRIMARY KEY NONCLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
 GO"
+
+    module CreateMultipleTableTests =
+        [<Fact>]
+        let ``should be create multiple tables``() =
+            CreateCatalog ()
+                |> WithTable (CreateTable "MyTable" |> WithInt "MyColumn")
+                |> WithTable (CreateTable "MySecondTable" |> WithVarchar "MyVar" 10)
+                |> Script
+                |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyColumn] [int] NOT NULL )
+GO
+CREATE TABLE [dbo].[MySecondTable]( [MyVar] [varchar](10) NOT NULL )
+GO"
+
+
         
