@@ -5,10 +5,12 @@ open System
 
 module DatabaseScripter =
 
+    let rev xs = Seq.fold (fun acc x -> x::acc) [] xs
+
     let ScriptTable table =
         let openScript = sprintf "CREATE TABLE [dbo].[%s](" table.name
         let columnScript = table.columns 
-                        |> Seq.rev
+                        |> rev
                         |> Seq.map(fun c -> match c with
                                             | IntColumn col when col.isNullable -> sprintf "[%s] [int] NULL" col.name 
                                             | IntColumn col                     -> sprintf "[%s] [int] NOT NULL" col.name 

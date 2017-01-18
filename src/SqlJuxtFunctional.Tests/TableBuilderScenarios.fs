@@ -2,14 +2,14 @@
 
 
 open FsUnit
-open Xunit
+open NUnit.Framework
 open SqlJuxtFunctional.DatabaseBuilder
 open SqlJuxtFunctional.DatabaseScripter
 open SqlJuxtFunctional.DatabaseTypes
 
     module CreateColumnTests =
            
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a single nullable int column``() =
             CreateTable "TestTable"
                 |> WithNullableInt "Column1"
@@ -17,7 +17,7 @@ open SqlJuxtFunctional.DatabaseTypes
                 |> should equal @"CREATE TABLE [dbo].[TestTable]( [Column1] [int] NULL )
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a single non nullable int column``() =
             CreateTable "TestTable"
                 |> WithInt "Column1"
@@ -25,7 +25,7 @@ GO"
                 |> should equal @"CREATE TABLE [dbo].[TestTable]( [Column1] [int] NOT NULL )
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a single nullable varchar column``() =
             CreateTable "VarTable"
                 |> WithNullableVarchar "MyVarchar" 45
@@ -33,7 +33,7 @@ GO"
                 |> should equal @"CREATE TABLE [dbo].[VarTable]( [MyVarchar] [varchar](45) NULL )
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a single non nullable varchar column``() =
             CreateTable "VarTable"
                 |> WithVarchar "MyVarchar" 10
@@ -41,7 +41,7 @@ GO"
                 |> should equal @"CREATE TABLE [dbo].[VarTable]( [MyVarchar] [varchar](10) NOT NULL )
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a mixture of columns``() =
             CreateTable "MultiColumnTable"
                 |> WithVarchar "MyVarchar" 10
@@ -54,7 +54,7 @@ GO"
 
     module PrimaryKeyTests =
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a clustered primary key on a single column asc``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyColumn"
@@ -65,7 +65,7 @@ GO
 
 ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC)
 GO"
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a clustered primary key on a single column desc``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyOtherColumn"                
@@ -77,7 +77,7 @@ GO
 ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyOtherColumn] DESC)
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a clustered primary key on a mulitple columns``() =
             CreateTable "MyPrimaryKeyTable"
                 |> WithInt "MyKeyColumn"
@@ -92,7 +92,7 @@ GO
 ALTER TABLE [dbo].[MyPrimaryKeyTable] ADD CONSTRAINT [PK_MyPrimaryKeyTable] PRIMARY KEY CLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
 GO"
 
-        [<Fact>]
+        [<Test>]
         let ``should be able to build a table with a non clustered primary key on a mulitple columns``() =
             CreateTable "RandomTableName"
                 |> WithInt "MyKeyColumn"
@@ -108,7 +108,7 @@ ALTER TABLE [dbo].[RandomTableName] ADD CONSTRAINT [PK_RandomTableName] PRIMARY 
 GO"
 
     module CreateMultipleTableTests =
-        [<Fact>]
+        [<Test>]
         let ``should be create multiple tables``() =
             CreateCatalog ()
                 |> WithTable (CreateTable "MyTable" |> WithInt "MyColumn")

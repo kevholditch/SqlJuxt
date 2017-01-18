@@ -1,8 +1,8 @@
 ﻿namespace SqlJuxtFunctionalTests.Scenarios
 
-open Xunit
+
 open FsUnit
-open FsUnit.Xunit
+open NUnit.Framework
 
 open SqlJuxtFunctional.Comparer
 open SqlJuxtFunctional.DatabaseBuilder
@@ -17,7 +17,11 @@ module CompareTableScenarios =
         | Differences(r') -> r'
         | _ -> failwith "expected databases to be different but they are a match"
 
-    [<Fact>]
+    [<Test>]
+    let ``boom town`` () =
+        (fun () -> failwith "BOOM!" |> ignore) |> should throw typeof<System.Exception>
+
+    [<Test>]
     let ``should return identical when two tables are the same``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -37,7 +41,7 @@ module CompareTableScenarios =
             |> should equal IsMatch
 
      
-    [<Fact>]
+    [<Test>]
     let ``should return missing table names when table is missing``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -55,7 +59,7 @@ module CompareTableScenarios =
         result.missingTables.Length |> should equal 1
         result.missingTables.Head.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return missing table name when table exists but has a different name``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -81,7 +85,7 @@ module CompareTableScenarios =
         result.missingTables.Length |> should equal 1
         result.missingTables.Head.name |> should equal "OtherTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when a table is different because of different column name``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -106,7 +110,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "TestTable"
         result.differentTables.Head.right.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when a table is different because of different column type``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -131,7 +135,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "TestTable"
         result.differentTables.Head.right.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when a table is different because column is non nullable vs nullable``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -156,7 +160,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "TestTable"
         result.differentTables.Head.right.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when a table is different because columns are the same but declared in a different order``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -183,7 +187,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "TestTable"
         result.differentTables.Head.right.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when one table has a primary key and the other does not``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -211,7 +215,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "TestTable"
         result.differentTables.Head.right.name |> should equal "TestTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when tables have different primary keys differing by number of columns``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -242,7 +246,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "DifferentKeyTable"
         result.differentTables.Head.right.name |> should equal "DifferentKeyTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when tables have different primary keys differing by column order``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -273,7 +277,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "DifferentKeyTable"
         result.differentTables.Head.right.name |> should equal "DifferentKeyTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when tables have different primary keys differing by column sort order``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -304,7 +308,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "DifferentKeyTable"
         result.differentTables.Head.right.name |> should equal "DifferentKeyTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return different table names when tables have different primary keys differing by clustered / non clustered``() =
         use left = createDatabase()
         use right = createDatabase()
@@ -335,7 +339,7 @@ module CompareTableScenarios =
         result.differentTables.Head.left.name |> should equal "DifferentKeyTable"
         result.differentTables.Head.right.name |> should equal "DifferentKeyTable"
 
-    [<Fact>]
+    [<Test>]
     let ``should return differences for multiple tables where some are missing and some are different``() =
         use left = createDatabase()
         use right = createDatabase()

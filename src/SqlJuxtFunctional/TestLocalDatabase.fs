@@ -7,12 +7,20 @@ module TestLocalDatabase =
     open FSharp.Data
     open System.Data.SqlClient
    
+    let rev xs = Seq.fold (fun acc x -> x::acc) [] xs
+
+    let tryHead xs =
+        match xs with
+        | x::xs -> Some x
+        | _ -> None
+
     let localConnectionString =
         let serverDirectory = new DirectoryInfo(@"C:\Program Files\Microsoft SQL Server")
         let version = serverDirectory.GetDirectories("LocalDb", SearchOption.AllDirectories)
                         |> Seq.map(fun dir -> dir.Parent.Name)
-                        |> Seq.sortByDescending(fun dir -> dir)
-                        |> Seq.tryHead
+                        |> Seq.sortBy(fun dir -> dir)
+                        |> rev
+                        |> tryHead
 
         let dataSource = match version with 
                             | Some v when v = "110" -> @"(LocalDB)\v11.0" 

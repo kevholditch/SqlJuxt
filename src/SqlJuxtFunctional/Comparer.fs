@@ -48,14 +48,14 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
 
     let private buildCatalog (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
         
-        let tables = columns |> List.groupBy(fun c -> (c.Schema, c.TableName))
-                             |> List.map(fun ((schema, tableName), cols) -> 
-                                    let columns = cols |> List.map(mapColumnEntity)
+        let tables = columns |> Seq.groupBy(fun c -> (c.Schema, c.TableName))
+                             |> Seq.map(fun ((schema, tableName), cols) -> 
+                                    let columns = cols |> Seq.map(mapColumnEntity)
                                     let tableKeys = primaryKeys |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
                                     let primaryKey = match tableKeys with
                                                             | x::xs -> Some {
                                                                                 name = x.PrimaryKeyName; 
-                                                                                columns = x::xs |> List.map(fun k -> let col = columns |> List.find(fun c -> (getColumnName c) = k.ColumnName)
+                                                                                columns = x::xs |> List.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
                                                                                                                      let dir = match k.IsDescending with
                                                                                                                                  | true -> DESC
                                                                                                                                  | false -> ASC
@@ -65,8 +65,8 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                                                                                 | false -> NONCLUSTERED
                                                                             }
                                                             | _ -> None
-                                    {schema = schema; name = tableName; columns = columns; primaryKey = primaryKey})                      
-        {tables = tables}
+                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey})                      
+        {tables = tables |> Seq.toList}
 
     let loadCatalog connectionString =        
         use connection = new SqlConnection(connectionString)
