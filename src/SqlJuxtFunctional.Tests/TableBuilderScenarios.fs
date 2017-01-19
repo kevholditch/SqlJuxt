@@ -107,6 +107,15 @@ GO
 ALTER TABLE [dbo].[RandomTableName] ADD CONSTRAINT [PK_RandomTableName] PRIMARY KEY NONCLUSTERED ([MyKeyColumn] ASC, [SecondKeyColumn] DESC, [ThirdCol] DESC)
 GO"
 
+        [<Test>]
+        let ``should not be able to build a table with a nullable column as part of a primary key``() =
+            (fun () -> CreateTable "InvalidTable"
+                        |> WithNullableInt "NullableCol"
+                        |> WithNonClusteredPrimaryKey [("NullableCol", ASC)]
+                        |> ScriptTable
+                        |> ignore)          
+                |> should (throwWithMessage "column named NullableCol is nullable, nullable columns are not allowed as part of a primary key") typeof<System.Exception>
+
     module CreateMultipleTableTests =
         [<Test>]
         let ``should be create multiple tables``() =

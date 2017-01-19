@@ -1,6 +1,5 @@
 ﻿namespace SqlJuxtFunctionalTests.Scenarios
 
-
 open FsUnit
 open NUnit.Framework
 
@@ -16,10 +15,6 @@ module CompareTableScenarios =
         match r with
         | Differences(r') -> r'
         | _ -> failwith "expected databases to be different but they are a match"
-
-    [<Test>]
-    let ``boom town`` () =
-        (fun () -> failwith "BOOM!" |> ignore) |> should throw typeof<System.Exception>
 
     [<Test>]
     let ``should return identical when two tables are the same``() =

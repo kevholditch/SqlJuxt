@@ -20,6 +20,11 @@ module DatabaseTypes =
             | IntColumn i -> i.name
             | VarColumn v -> v.name
 
+    let isColumnNullable c =
+        match c with
+            | IntColumn i -> i.isNullable
+            | VarColumn v -> v.isNullable
+
     let getColumnNames c =
             c |> List.map(getColumnName)
 
