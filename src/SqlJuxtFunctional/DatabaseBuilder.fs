@@ -15,26 +15,19 @@ module DatabaseBuilder =
         let CreateTable name =
             {schema = "dbo"; name = name; columns = []; primaryKey = None}
 
-        let private withInt name nullable table =
+        let private withInt nullable name table =
             let c = IntColumn {name = name; isNullable = nullable}
             {table with Table.columns = c::table.columns}
 
-        let WithNullableInt name table =
-            withInt name true table
+        let WithNullableInt = withInt true 
+        let WithInt = withInt false 
 
-        let WithInt name table =
-            withInt name false table
-
-        let private withVarchar name nullable length table =
+        let private withVarchar nullable name length table =
             let c = VarColumn {name = name; isNullable = nullable; length = length}
             {table with Table.columns = c::table.columns}
 
-        let WithNullableVarchar name length table =
-            withVarchar name true length table
-
-        let WithVarchar name length table =
-            withVarchar name false length table
-                                            
+        let WithNullableVarchar = withVarchar true
+        let WithVarchar = withVarchar false                                     
                                                               
         let WithPrimaryKey clustering columns table =
             let cs = columns |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
