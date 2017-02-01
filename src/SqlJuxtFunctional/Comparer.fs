@@ -54,18 +54,18 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                     let tableKeys = primaryKeys |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
                                     let primaryKey = match tableKeys with
                                                             | x::xs -> Some {
-                                                                                name = x.PrimaryKeyName; 
+                                                                                Constraint.name = x.PrimaryKeyName; 
                                                                                 columns = x::xs |> List.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
                                                                                                                      let dir = match k.IsDescending with
                                                                                                                                  | true -> DESC
                                                                                                                                  | false -> ASC
                                                                                                                      (col, dir))
-                                                                                Clustering = match x.IsClustered with
+                                                                                clustering = match x.IsClustered with
                                                                                                 | true -> CLUSTERED
                                                                                                 | false -> NONCLUSTERED
                                                                             }
                                                             | _ -> None
-                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey})                      
+                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = []})                      
         {tables = tables |> Seq.toList}
 
     let loadCatalog connectionString =        

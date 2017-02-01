@@ -7,8 +7,10 @@ module DatabaseTypes =
     type Column = IntColumn of IntegerColumn | VarColumn of VarcharColumn
     type SortDirection = ASC | DESC
     type Clustering = CLUSTERED | NONCLUSTERED
-    type Constraint = {name: string; columns: (Column * SortDirection)  list; Clustering: Clustering}
-    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option}
+    type Uniqueness = UNIQUE | NONUNIQUE
+    type Constraint = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering}
+    type Index = {name: string; columns: (Column * SortDirection) list; clustering: Clustering; uniqueness: Uniqueness}
+    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option; indexes: Index list}
     type Catalog = {tables: Table list}
 
     type TableDifference = {left: Table; right: Table}

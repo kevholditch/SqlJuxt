@@ -116,6 +116,61 @@ GO"
                         |> ignore)          
                 |> should (throwWithMessage "column named NullableCol is nullable, nullable columns are not allowed as part of a primary key") typeof<System.Exception>
 
+    module CreateIndexTests =
+        [<Test>]
+        let ``should be able to build a table with a nonunique clustered index``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithClusteredIndex NONUNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE CLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO"
+
+        [<Test>]
+        let ``should be able to build a table with a unique clustered index``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithClusteredIndex UNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE UNIQUE CLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO"
+
+        [<Test>]
+        let ``should be able to build a table with a nonunique nonclustered index``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithNonClusteredIndex NONUNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO"
+
+        [<Test>]
+        let ``should be able to build a table with a unique nonclustered index``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithNonClusteredIndex UNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO"
+        
+
+
     module CreateMultipleTableTests =
         [<Test>]
         let ``should be create multiple tables``() =
