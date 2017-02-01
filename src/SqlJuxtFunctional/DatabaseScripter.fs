@@ -12,7 +12,9 @@ module DatabaseScripter =
                                 | NONCLUSTERED -> "NONCLUSTERED"
 
     let ScriptTable table =
-        let openScript = sprintf "CREATE TABLE [dbo].[%s](" table.name
+        let tableNameWithSchema = sprintf "[%s].[%s]" table.schema table.name
+
+        let openScript = sprintf "CREATE TABLE %s(" tableNameWithSchema 
         let columnScript = table.columns 
                         |> rev
                         |> Seq.map(fun c -> match c with
@@ -29,20 +31,20 @@ module DatabaseScripter =
 
         let primaryKeyScript = match table.primaryKey with
                                 | Some key ->   let cols = key.columns |> scriptColumnDirections
-                                                let clustered = clusteredString key.clustering
-                                                sprintf "%s%sALTER TABLE [dbo].[%s] ADD CONSTRAINT [%s] PRIMARY KEY %s %s%sGO" Environment.NewLine Environment.NewLine table.name key.name clustered cols Environment.NewLine
+                                                let clustered = key.clustering |> clusteredString
+                                                sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] PRIMARY KEY %s %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema key.name clustered cols Environment.NewLine
                                 | None -> ""
 
-        let scriptIndex tableName (index:Index) =
+        let scriptIndex (index:Index) =
             let columnDirections = scriptColumnDirections index.columns
             let clustering = clusteredString index.clustering
             let unique = match index.uniqueness with
                             | UNIQUE -> "UNIQUE "
                             | _ -> ""
-            sprintf "%s%sCREATE %s%s INDEX %s ON [dbo].[%s] %s%sGO" Environment.NewLine Environment.NewLine unique clustering index.name tableName columnDirections Environment.NewLine
+            sprintf "%s%sCREATE %s%s INDEX %s ON %s %s%sGO" Environment.NewLine Environment.NewLine unique clustering index.name tableNameWithSchema columnDirections Environment.NewLine
 
         let indexScript =
-            table.indexes |> List.map(fun i -> scriptIndex table.name i) |> fun s -> String.Join(Environment.NewLine, s)
+            table.indexes |> List.map(fun i -> scriptIndex i) |> fun s -> String.Join(Environment.NewLine, s)
 
         openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript + indexScript
 
