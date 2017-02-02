@@ -53,26 +53,26 @@ order by OBJECT_SCHEMA_NAME(o.object_id), OBJECT_NAME(o.object_id), i.name, ic.k
                              |> Seq.map(fun ((schema, tableName), cols) -> 
                                     let columns = cols |> Seq.map(mapColumnEntity)
                                     let tableConstraints = constraints |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
-                                                                       |> Seq.groupBy(fun k -> k.Name)
-                                                                       |> Seq.map(fun (name, items) -> match items |> Seq.toList with
-                                                                                                        | x::xs -> {
-                                                                                                                    Constraint.name = x.Name; 
-                                                                                                                    columns = x::xs |> List.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
-                                                                                                                                                         let dir = match k.IsDescending with
-                                                                                                                                                                     | true -> DESC
-                                                                                                                                                                     | false -> ASC
-                                                                                                                                                         (col, dir))
-                                                                                                                    clustering = match x.IsClustered with
-                                                                                                                                    | true -> CLUSTERED
-                                                                                                                                    | false -> NONCLUSTERED;
-                                                                                                                    uniqueness = match x.IsUnique with
-                                                                                                                                    | true -> UNIQUE
-                                                                                                                                    | false -> NONUNIQUE;
-                                                                                                                    constraintType = match x.IsPrimaryKey with
-                                                                                                                                       | true -> PRIMARYKEY
-                                                                                                                                       | false -> INDEX
-                                                                                                                }
-                                                                                                        | _ -> failwithf "unreachable")
+                                                                       |> Seq.groupBy(fun k -> (k.Name, k.IsClustered, k.IsUnique, k.IsPrimaryKey))
+                                                                       |> Seq.map(fun ((name, isClustered, isUnique, isPrimaryKey), items) -> 
+                                                                                            {
+                                                                                                    Constraint.name = name; 
+                                                                                                    columns = items |> Seq.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
+                                                                                                                                        let dir = match k.IsDescending with
+                                                                                                                                                        | true -> DESC
+                                                                                                                                                        | false -> ASC
+                                                                                                                                        (col, dir)) |> Seq.toList
+                                                                                                    clustering = match isClustered with
+                                                                                                                    | true -> CLUSTERED
+                                                                                                                    | false -> NONCLUSTERED;
+                                                                                                    uniqueness = match isUnique with
+                                                                                                                    | true -> UNIQUE
+                                                                                                                    | false -> NONUNIQUE;
+                                                                                                    constraintType = match isPrimaryKey with
+                                                                                                                    | true -> PRIMARYKEY
+                                                                                                                    | false -> INDEX
+                                                                                             })
+                                                                                                        
                                                                         |> Seq.toList
 
                                     let primaryKey = tableConstraints |> List.tryFind(fun c -> c.constraintType = PRIMARYKEY)
