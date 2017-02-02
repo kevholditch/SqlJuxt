@@ -38,10 +38,10 @@ module Comparer =
 		ic.is_descending_key ""IsDescending"",
 		CASE WHEN i.type_desc = 'CLUSTERED' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS ""IsClustered""
 from sys.objects o
-inner join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 1
-inner join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
-inner join sys.columns c on c.object_id = o.parent_object_id and c.column_id = ic.column_id
-inner join sys.types t ON t.user_type_id = c.user_type_id
+join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 1
+join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
+join sys.columns c on c.object_id = o.parent_object_id and c.column_id = ic.column_id
+join sys.types t ON t.user_type_id = c.user_type_id
 where o.type = 'PK'
 ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id), ic.key_ordinal"
         |> Seq.toList
@@ -62,7 +62,8 @@ ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id)
                                                                                                                      (col, dir))
                                                                                 clustering = match x.IsClustered with
                                                                                                 | true -> CLUSTERED
-                                                                                                | false -> NONCLUSTERED
+                                                                                                | false -> NONCLUSTERED;
+                                                                                uniqueness = UNIQUE
                                                                             }
                                                             | _ -> None
                                     {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = []})                      

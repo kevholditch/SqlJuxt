@@ -39,7 +39,7 @@ module DatabaseBuilder =
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )
             let columnNames = cs |> List.map(fun(c,d) -> (getColumnName c)) |> fun cols -> String.Join("_", cols)
             let indexName = sprintf "IDX_%s_%s" table.name columnNames
-            let index = {Index.name = indexName; columns = cs; clustering = clustering; uniqueness = uniqueness}
+            let index = {Constraint.name = indexName; columns = cs; clustering = clustering; uniqueness = uniqueness}
             {table with indexes = index::table.indexes}
 
         let WithClusteredIndex = withIndex CLUSTERED
@@ -54,7 +54,7 @@ module DatabaseBuilder =
                                                         | Some col when isColumnNullable col -> failwithf "column named %s is nullable, nullable columns are not allowed as part of a primary key" c 
                                                         | Some col -> (col, d)
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )  
-            {table with primaryKey = Some {name = sprintf "PK_%s" table.name; columns = cs; clustering = clustering}}
+            {table with primaryKey = Some {name = sprintf "PK_%s" table.name; columns = cs; clustering = clustering; uniqueness = UNIQUE}}
               
         let WithClusteredPrimaryKey = WithPrimaryKey CLUSTERED
         let WithNonClusteredPrimaryKey = WithPrimaryKey NONCLUSTERED

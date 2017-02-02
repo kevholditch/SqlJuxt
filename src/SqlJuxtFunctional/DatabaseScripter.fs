@@ -35,7 +35,7 @@ module DatabaseScripter =
                                                 sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] PRIMARY KEY %s %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema key.name clustered cols Environment.NewLine
                                 | None -> ""
 
-        let scriptIndex (index:Index) =
+        let scriptIndex (index:Constraint) =
             let columnDirections = scriptColumnDirections index.columns
             let clustering = clusteredString index.clustering
             let unique = match index.uniqueness with
