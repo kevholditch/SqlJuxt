@@ -7,7 +7,7 @@ module Comparer =
     open SqlJuxtFunctional.DatabaseTypes
 
     type ColumnEntity = {Schema:string; TableName:string; ColumnName:string; OrdinalPosition:int; Default:string; IsNullable:string; DataType:string; CharacterMaxLength:Nullable<int>; }            
-    type PrimaryKeyEntity = {Schema:string; TableName:string; PrimaryKeyName:string; KeyOrdinal:byte; ColumnName:string; IsDescending:bool; IsClustered: bool; }
+    type ConstraintEntity = {Schema:string; TableName:string; Name:string; KeyOrdinal:byte; ColumnName:string; IsDescending:bool; IsClustered: bool; IsPrimaryKey: bool; IsUnique: bool}
 
     let private getColumns connection =
         connection
@@ -30,43 +30,54 @@ module Comparer =
 
     let private getPrimaryKeys connection =
         connection 
-        |> dapperQuery<PrimaryKeyEntity> @"SELECT  OBJECT_SCHEMA_NAME(o.parent_object_id) AS [Schema], 
-		OBJECT_NAME(o.parent_object_id) AS TableName, 
-		o.name AS PrimaryKeyName, 
+        |> dapperQuery<ConstraintEntity> @"select OBJECT_SCHEMA_NAME(o.object_id) AS [Schema], 
+		OBJECT_NAME(o.object_id) AS TableName,
+		i.name AS Name,
 		ic.key_ordinal ""KeyOrdinal"", 
 		c.name AS ColumnName, 
 		ic.is_descending_key ""IsDescending"",
-		CASE WHEN i.type_desc = 'CLUSTERED' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS ""IsClustered""
+		CASE WHEN i.type_desc = 'CLUSTERED' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS ""IsClustered"",
+		i.is_primary_key AS ""IsPrimaryKey"",
+		i.is_unique AS ""IsUnique""
 from sys.objects o
-join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 1
+join sys.indexes i on i.object_id = o.object_id
 join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
-join sys.columns c on c.object_id = o.parent_object_id and c.column_id = ic.column_id
-join sys.types t ON t.user_type_id = c.user_type_id
-where o.type = 'PK'
-ORDER BY OBJECT_SCHEMA_NAME(o.parent_object_id), OBJECT_NAME(o.parent_object_id), ic.key_ordinal"
+join sys.columns c on c.object_id = o.object_id and c.column_id = ic.column_id
+where OBJECT_SCHEMA_NAME(o.object_id) <> 'sys'
+order by OBJECT_SCHEMA_NAME(o.object_id), OBJECT_NAME(o.object_id), i.name, ic.key_ordinal"
         |> Seq.toList
 
-    let private buildCatalog (columns: ColumnEntity list) (primaryKeys: PrimaryKeyEntity list)  =
-        
+    let private buildCatalog (columns: ColumnEntity list) (constraints: ConstraintEntity list)  =
+
         let tables = columns |> Seq.groupBy(fun c -> (c.Schema, c.TableName))
                              |> Seq.map(fun ((schema, tableName), cols) -> 
                                     let columns = cols |> Seq.map(mapColumnEntity)
-                                    let tableKeys = primaryKeys |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
-                                    let primaryKey = match tableKeys with
-                                                            | x::xs -> Some {
-                                                                                Constraint.name = x.PrimaryKeyName; 
-                                                                                columns = x::xs |> List.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
-                                                                                                                     let dir = match k.IsDescending with
-                                                                                                                                 | true -> DESC
-                                                                                                                                 | false -> ASC
-                                                                                                                     (col, dir))
-                                                                                clustering = match x.IsClustered with
-                                                                                                | true -> CLUSTERED
-                                                                                                | false -> NONCLUSTERED;
-                                                                                uniqueness = UNIQUE
-                                                                            }
-                                                            | _ -> None
-                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = []})                      
+                                    let tableConstraints = constraints |> List.filter(fun k -> k.TableName = tableName && k.Schema = schema)
+                                                                       |> Seq.groupBy(fun k -> k.Name)
+                                                                       |> Seq.map(fun (name, items) -> match items |> Seq.toList with
+                                                                                                        | x::xs -> {
+                                                                                                                    Constraint.name = x.Name; 
+                                                                                                                    columns = x::xs |> List.map(fun k -> let col = columns |> Seq.find(fun c -> (getColumnName c) = k.ColumnName)
+                                                                                                                                                         let dir = match k.IsDescending with
+                                                                                                                                                                     | true -> DESC
+                                                                                                                                                                     | false -> ASC
+                                                                                                                                                         (col, dir))
+                                                                                                                    clustering = match x.IsClustered with
+                                                                                                                                    | true -> CLUSTERED
+                                                                                                                                    | false -> NONCLUSTERED;
+                                                                                                                    uniqueness = match x.IsUnique with
+                                                                                                                                    | true -> UNIQUE
+                                                                                                                                    | false -> NONUNIQUE;
+                                                                                                                    constraintType = match x.IsPrimaryKey with
+                                                                                                                                       | true -> PRIMARYKEY
+                                                                                                                                       | false -> INDEX
+                                                                                                                }
+                                                                                                        | _ -> failwithf "unreachable")
+                                                                        |> Seq.toList
+
+                                    let primaryKey = tableConstraints |> List.tryFind(fun c -> c.constraintType = PRIMARYKEY)
+                                    let indexes = tableConstraints |> List.filter(fun c -> c.constraintType = INDEX)
+                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = indexes})                      
         {tables = tables |> Seq.toList}
 
     let loadCatalog connectionString =        

@@ -8,7 +8,8 @@ module DatabaseTypes =
     type SortDirection = ASC | DESC
     type Clustering = CLUSTERED | NONCLUSTERED
     type Uniqueness = UNIQUE | NONUNIQUE
-    type Constraint = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering; uniqueness : Uniqueness}
+    type ConstraintType = PRIMARYKEY | INDEX
+    type Constraint = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering; uniqueness : Uniqueness; constraintType: ConstraintType}
     type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option; indexes: Constraint list}
     type Catalog = {tables: Table list}
 

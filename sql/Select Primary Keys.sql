@@ -19,5 +19,6 @@ select TABLE_SCHEMA as "Schema", TABLE_NAME as "TableName",   COLUMN_NAME as "Co
                                                                              from INFORMATION_SCHEMA.COLUMNS
                                                                              order by TABLE_NAME, ORDINAL_POSITION
 
-
-
+select *
+from sys.objects o
+inner join sys.indexes i on i.object_id = o.parent_object_id and i.is_primary_key = 0
