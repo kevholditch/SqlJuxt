@@ -44,7 +44,10 @@ module DatabaseScripter =
             sprintf "%s%sCREATE %s%s INDEX %s ON %s %s%sGO" Environment.NewLine Environment.NewLine unique clustering index.name tableNameWithSchema columnDirections Environment.NewLine
 
         let indexScript =
-            table.indexes |> List.map(fun i -> scriptIndex i) |> fun s -> String.Join(Environment.NewLine, s)
+            table.indexes 
+                |> rev
+                |> List.map(fun i -> scriptIndex i) 
+                |> fun s -> String.Join(Environment.NewLine, s)
 
         openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript + indexScript
 

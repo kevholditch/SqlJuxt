@@ -69,8 +69,8 @@ order by OBJECT_SCHEMA_NAME(o.object_id), OBJECT_NAME(o.object_id), i.name, ic.k
                                                                                                                     | true -> UNIQUE
                                                                                                                     | false -> NONUNIQUE;
                                                                                                     constraintType = match isPrimaryKey with
-                                                                                                                    | true -> PRIMARYKEY
-                                                                                                                    | false -> INDEX
+                                                                                                                        | true -> PRIMARYKEY
+                                                                                                                        | false -> INDEX
                                                                                              })
                                                                                                         
                                                                         |> Seq.toList

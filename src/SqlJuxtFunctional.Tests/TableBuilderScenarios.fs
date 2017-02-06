@@ -168,6 +168,24 @@ GO
 
 CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
 GO"
+
+        [<Test>]
+        let ``should be able to build a table with a multiple indexes``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithNonClusteredIndex UNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> WithNonClusteredIndex NONUNIQUE [("MyKeyColumn", ASC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO
+
+
+CREATE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC)
+GO"
         
 
 
