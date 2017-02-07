@@ -46,23 +46,30 @@ module DatabaseTypes =
                 | (true, i) -> Some i
                 | _ -> None
 
+        let grabLastChar (str:string) =
+            str.[str.Length-1]
+
+        let pruneLastChar (str:string) =
+            str.Substring(0, str.Length - 1)
+
+        let pruneNumber (str:string) i =
+            str.Substring(0, str.Length - i.ToString().Length)
+
         let getNumberFromEndOfString (s:string)  =
 
             let rec getNumberFromEndOfStringInner (s1:string) (n: int option) =
                 match s1.Length with
                     | 0 -> n
-                    | _ -> match getNumber s1.[s1.Length-1] with
+                    | _ -> match s1 |> grabLastChar |> getNumber with
                             | None -> n
-                            | Some m -> match n with 
+                            | Some m ->  let newS = s1 |> pruneLastChar
+                                         match n with 
                                             | Some n1 -> let newN = Some (Convert.ToInt32(m.ToString() + n1.ToString()))
-                                                         let newS = s1.Substring(0, s.Length - 1)
                                                          getNumberFromEndOfStringInner newS newN
-                                            | None -> let newS = s1.Substring(0, s1.Length - 1)
-                                                      getNumberFromEndOfStringInner newS (Some m) 
+                                            | None -> getNumberFromEndOfStringInner newS (Some m) 
             let num = getNumberFromEndOfStringInner s None
             match num with
-                | Some num' -> let rest = s.Substring(0, s.Length - num'.ToString().Length)
-                               (rest, num)
+                | Some num' -> (s |> pruneNumber <| num', num)
                 | None -> (s, num)
             
 
@@ -70,8 +77,7 @@ module DatabaseTypes =
         match result with
             | Some r -> let (n, r) = getNumberFromEndOfString name
                         match r with 
-                            | Some r' -> let newName = n + (r'+1).ToString()
-                                         getNextAvailableName newName names
+                            | Some r' -> getNextAvailableName (n + (r'+1).ToString()) names
                             | None -> getNextAvailableName (n + "2") names
                         
             | None -> name
