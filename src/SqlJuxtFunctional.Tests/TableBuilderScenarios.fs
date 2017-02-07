@@ -235,6 +235,18 @@ GO
 CREATE UNIQUE CLUSTERED INDEX IDX_MyTable_MyInt ON [dbo].[MyTable] ([MyInt] ASC)
 GO"
 
+        [<Test>]
+        let ``should not be able to create more than one clustered index on a table``() =
+            (fun () -> CreateTable "InvalidTable"
+                        |> WithInt "MyInt"
+                        |> WithInt "MyOtherInt"
+                        |> WithClusteredIndex UNIQUE [("MyInt", ASC)]
+                        |> WithClusteredIndex UNIQUE [("MyInt", ASC); ("MyOtherInt", ASC)]
+                        |> ScriptTable
+                        |> ignore)          
+                |> should (throwWithMessage "clustered index not allowed as table InvalidTable already contains clustered index") typeof<System.Exception>
+
+
 
     module CreateMultipleTableTests =
         [<Test>]

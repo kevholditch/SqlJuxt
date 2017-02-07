@@ -42,8 +42,9 @@ module DatabaseBuilder =
             let indexNames = table.indexes |> List.map(fun i -> i.name)
             let newIndexName = getNextAvailableName indexName indexNames
             let index = {Constraint.name = newIndexName; columns = cs; clustering = clustering; uniqueness = uniqueness; constraintType = INDEX}
-            match table.primaryKey with 
-                | Some key when key.clustering = CLUSTERED -> failwithf "clustered index not allowed as table %s already contains clustered primary key" table.name
+            match (table.primaryKey, table.indexes |> List.filter(fun i -> i.clustering = CLUSTERED)) with 
+                | (Some key, _) when key.clustering = CLUSTERED -> failwithf "clustered index not allowed as table %s already contains clustered primary key" table.name
+                | (_, x::xs) -> failwithf "clustered index not allowed as table %s already contains clustered index" table.name
                 | _ -> {table with indexes = index::table.indexes}
             
 
