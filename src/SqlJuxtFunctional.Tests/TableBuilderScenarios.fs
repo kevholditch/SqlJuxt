@@ -209,7 +209,31 @@ GO
 
 CREATE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn3 ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
 GO"
-        
+        [<Test>]
+        let ``should not be able to create a clustered index when there is already a clustered primary key``() =
+            (fun () -> CreateTable "InvalidTable"
+                        |> WithInt "MyInt"
+                        |> WithClusteredPrimaryKey [("MyInt", ASC)]
+                        |> WithClusteredIndex UNIQUE [("MyInt", ASC)]
+                        |> ScriptTable
+                        |> ignore)          
+                |> should (throwWithMessage "clustered index not allowed as table InvalidTable already contains clustered primary key") typeof<System.Exception>
+
+        [<Test>]
+        let ``should be able to create a clustered index when table has a non clustered primary key``() =
+                CreateTable "MyTable"
+                    |> WithInt "MyInt"
+                    |> WithNonClusteredPrimaryKey [("MyInt", ASC)]
+                    |> WithClusteredIndex UNIQUE [("MyInt", ASC)]
+                    |> ScriptTable
+                    |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyInt] [int] NOT NULL )
+GO
+
+ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [PK_MyTable] PRIMARY KEY NONCLUSTERED ([MyInt] ASC)
+GO
+
+CREATE UNIQUE CLUSTERED INDEX IDX_MyTable_MyInt ON [dbo].[MyTable] ([MyInt] ASC)
+GO"
 
 
     module CreateMultipleTableTests =

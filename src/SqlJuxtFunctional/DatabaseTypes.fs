@@ -37,8 +37,6 @@ module DatabaseTypes =
                 | ASC -> "ASC"
                 | DESC -> "DESC"
 
-    
-
     let rec getNextAvailableName (name:string) (names: string list) =
 
         let getNumber (chr:char) =
