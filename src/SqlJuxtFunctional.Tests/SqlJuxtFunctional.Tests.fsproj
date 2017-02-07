@@ -54,6 +54,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="TableBuilderScenarios.fs" />
     <Compile Include="CompareTableScenarios.fs" />
+    <Compile Include="NextAvailableNameScenarios.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

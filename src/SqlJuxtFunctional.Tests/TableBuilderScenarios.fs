@@ -170,7 +170,7 @@ CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn 
 GO"
 
         [<Test>]
-        let ``should be able to build a table with a multiple indexes``() =
+        let ``should be able to build a table with a multiple different indexes``() =
             CreateTable "MyIndexedTable"
                 |> WithInt "MyKeyColumn"
                 |> WithInt "SecondKeyColumn"
@@ -185,6 +185,29 @@ GO
 
 
 CREATE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC)
+GO"
+
+        [<Test>]
+        let ``should name indexes sequentially when there are multiple indexes defined that would generate the same name``() =
+            CreateTable "MyIndexedTable"
+                |> WithInt "MyKeyColumn"
+                |> WithInt "SecondKeyColumn"
+                |> WithNonClusteredIndex UNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> WithNonClusteredIndex UNIQUE [("MyKeyColumn", ASC); ("SecondKeyColumn", DESC)]
+                |> WithNonClusteredIndex NONUNIQUE [("MyKeyColumn", ASC) ; ("SecondKeyColumn", DESC)]
+                |> ScriptTable
+                |> should equal @"CREATE TABLE [dbo].[MyIndexedTable]( [MyKeyColumn] [int] NOT NULL, [SecondKeyColumn] [int] NOT NULL )
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO
+
+
+CREATE UNIQUE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn2 ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
+GO
+
+
+CREATE NONCLUSTERED INDEX IDX_MyIndexedTable_MyKeyColumn_SecondKeyColumn3 ON [dbo].[MyIndexedTable] ([MyKeyColumn] ASC, [SecondKeyColumn] DESC)
 GO"
         
 

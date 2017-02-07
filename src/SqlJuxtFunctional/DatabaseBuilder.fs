@@ -28,7 +28,7 @@ module DatabaseBuilder =
 
         let WithNullableVarchar = withVarchar true
         let WithVarchar = withVarchar false
-        
+
         let private withIndex (clustering:Clustering) (uniqueness:Uniqueness) (columns:(string * SortDirection) list) (table:Table) =
             let cs = columns |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
                                                                                                                 | IntColumn i when i.name = c -> true 
