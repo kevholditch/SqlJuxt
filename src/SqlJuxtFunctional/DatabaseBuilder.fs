@@ -39,7 +39,9 @@ module DatabaseBuilder =
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )
             let columnNames = cs |> List.map(fun(c,d) -> (getColumnName c)) |> fun cols -> String.Join("_", cols)
             let indexName = sprintf "IDX_%s_%s" table.name columnNames
-            let index = {Constraint.name = indexName; columns = cs; clustering = clustering; uniqueness = uniqueness; constraintType = INDEX}
+            let indexNames = table.indexes |> List.map(fun i -> i.name)
+            let newIndexName = getNextAvailableName indexName indexNames
+            let index = {Constraint.name = newIndexName; columns = cs; clustering = clustering; uniqueness = uniqueness; constraintType = INDEX}
             {table with indexes = index::table.indexes}
 
         let WithClusteredIndex = withIndex CLUSTERED

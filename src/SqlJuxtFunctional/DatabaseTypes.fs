@@ -58,15 +58,15 @@ module DatabaseTypes =
         let getNumberFromEndOfString (s:string)  =
 
             let rec getNumberFromEndOfStringInner (s1:string) (n: int option) =
-                match s1.Length with
-                    | 0 -> n
-                    | _ -> match s1 |> grabLastChar |> getNumber with
-                            | None -> n
-                            | Some m ->  let newS = s1 |> pruneLastChar
-                                         match n with 
-                                            | Some n1 -> let newN = Some (Convert.ToInt32(m.ToString() + n1.ToString()))
-                                                         getNumberFromEndOfStringInner newS newN
-                                            | None -> getNumberFromEndOfStringInner newS (Some m) 
+                match s1 |> String.IsNullOrWhiteSpace with
+                    | true -> n
+                    | false -> match s1 |> grabLastChar |> getNumber with
+                                | None -> n
+                                | Some m ->  let newS = s1 |> pruneLastChar
+                                             match n with 
+                                                | Some n1 -> let newN = m.ToString() + n1.ToString() |> Convert.ToInt32 |> Some
+                                                             getNumberFromEndOfStringInner newS newN
+                                                | None -> getNumberFromEndOfStringInner newS (Some m) 
             let num = getNumberFromEndOfStringInner s None
             match num with
                 | Some num' -> (s |> pruneNumber <| num', num)
