@@ -1,5 +1,5 @@
 # SqlJuxt
-Sql comparison API written in F#.
+Sql Server comparison and scripting API written in F#.
 
 SqlJuxt is a Sql Server comparision and scripting API.  It allows you to compare two database schemas and fluently script a database.
 
