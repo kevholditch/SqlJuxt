@@ -37,6 +37,12 @@ module DatabaseTypes =
                 | ASC -> "ASC"
                 | DESC -> "DESC"
 
+    let getColumnByName name columns =
+        columns |> List.tryFind(fun col ->  match col with
+                                                | IntColumn i when i.name = name -> true 
+                                                | VarColumn v when v.name = name -> true
+                                                | _ -> false)
+
     let rec getNextAvailableName (name:string) (names: string list) =
 
         let getNumber (chr:char) =

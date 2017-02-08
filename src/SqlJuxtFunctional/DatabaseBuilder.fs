@@ -30,10 +30,7 @@ module DatabaseBuilder =
         let WithVarchar = withVarchar false
 
         let private withIndex (clustering:Clustering) (uniqueness:Uniqueness) (columns:(string * SortDirection) list) (table:Table) =
-            let cs = columns |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
-                                                                                                                | IntColumn i when i.name = c -> true 
-                                                                                                                | VarColumn v when v.name = c -> true
-                                                                                                                | _ -> false)
+            let cs = columns |> List.map(fun (c,d) -> let column = getColumnByName c table.columns
                                                       match column with
                                                         | Some col -> (col, d)
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )
@@ -42,6 +39,7 @@ module DatabaseBuilder =
             let indexNames = table.indexes |> List.map(fun i -> i.name)
             let newIndexName = getNextAvailableName indexName indexNames
             let index = {Constraint.name = newIndexName; columns = cs; clustering = clustering; uniqueness = uniqueness; constraintType = INDEX}
+            
             match (table.primaryKey, table.indexes |> List.filter(fun i -> i.clustering = CLUSTERED)) with 
                 | (Some key, _) when key.clustering = CLUSTERED -> failwithf "clustered index not allowed as table %s already contains clustered primary key" table.name
                 | (_, x::xs) -> failwithf "clustered index not allowed as table %s already contains clustered index" table.name
@@ -49,13 +47,10 @@ module DatabaseBuilder =
             
 
         let WithClusteredIndex = withIndex CLUSTERED
-        let WithNonClusteredIndex = withIndex NONCLUSTERED                           
+        let WithNonClusteredIndex = withIndex NONCLUSTERED
                                                               
         let WithPrimaryKey clustering columns table =
-            let cs = columns |> List.map(fun (c,d) -> let column = table.columns |> List.tryFind(fun col ->  match col with
-                                                                                                                | IntColumn i when i.name = c -> true 
-                                                                                                                | VarColumn v when v.name = c -> true
-                                                                                                                | _ -> false)
+            let cs = columns |> List.map(fun (c,d) -> let column = getColumnByName c table.columns
                                                       match column with
                                                         | Some col when isColumnNullable col -> failwithf "column named %s is nullable, nullable columns are not allowed as part of a primary key" c 
                                                         | Some col -> (col, d)
