@@ -11,7 +11,7 @@ let rightConnString = "Data Source=(LocalDB)\MSSQLLocalDB;Integrated Security=Tr
 let result = loadCatalog leftConnString
                  |> compareWith rightConnString
 ```
-result is a `ComparisonResult` which is either a `IsMatch` in which case the database schemas are the same or it is a `Differences` in which case the database schemas are different.  The full match result is defined as:
+`result` is a `ComparisonResult` which is either a `IsMatch` in which case the database schemas are the same or it is a `Differences` in which case the database schemas are different.  The full match result is defined as:
 
 ```
 type TableDifference = {left: Table; right: Table}
