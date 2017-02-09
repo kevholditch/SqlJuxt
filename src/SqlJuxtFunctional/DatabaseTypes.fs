@@ -1,6 +1,7 @@
 ﻿namespace SqlJuxtFunctional
 
-open System
+open LibraryFunctions
+
 
 module DatabaseTypes =
 
@@ -18,6 +19,8 @@ module DatabaseTypes =
     type TableDifference = {left: Table; right: Table}
     type DatabaseDifferences = {missingTables: Table list; differentTables: TableDifference list}
     type ComparisonResult = IsMatch | Differences of DatabaseDifferences
+
+    
 
     let getColumnName c =
         match c with
@@ -45,41 +48,11 @@ module DatabaseTypes =
 
     let rec getNextAvailableName (name:string) (names: string list) =
 
-        let getNumber (chr:char) =
-            match Int32.TryParse(chr.ToString()) with
-                | (true, i) -> Some i
-                | _ -> None
-
-        let grabLastChar (str:string) =
-            str.[str.Length-1]
-
-        let pruneLastChar (str:string) =
-            str.Substring(0, str.Length - 1)
-
-        let pruneNumber (str:string) i =
-            str.Substring(0, str.Length - i.ToString().Length)
-
-        let getNumberFromEndOfString (s:string)  =
-
-            let rec getNumberFromEndOfStringInner (s1:string) (n: int option) =
-                match s1 |> String.IsNullOrWhiteSpace with
-                    | true -> n
-                    | false -> match s1 |> grabLastChar |> getNumber with
-                                | None -> n
-                                | Some m ->  let newS = s1 |> pruneLastChar
-                                             match n with 
-                                                | Some n1 -> let newN = m.ToString() + n1.ToString() |> Convert.ToInt32 |> Some
-                                                             getNumberFromEndOfStringInner newS newN
-                                                | None -> getNumberFromEndOfStringInner newS (Some m) 
-            let num = getNumberFromEndOfStringInner s None
-            match num with
-                | Some num' -> (s |> pruneNumber <| num', num)
-                | None -> (s, num)
-            
-
         let result = names |> List.tryFind(fun x -> x = name)
         match result with
-            | Some r -> let (n, r) = getNumberFromEndOfString name
+            | Some r -> let (n, r) = match name with
+                                        | ParseRegex "(.*)(\d+)$" [s; Integer i] -> (s, Some i)
+                                        | _ -> (name, None)
                         match r with 
                             | Some r' -> getNextAvailableName (n + (r'+1).ToString()) names
                             | None -> getNextAvailableName (n + "2") names
