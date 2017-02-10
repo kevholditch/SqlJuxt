@@ -246,18 +246,70 @@ GO"
                         |> ignore)          
                 |> should (throwWithMessage "clustered index not allowed as table InvalidTable already contains clustered index") typeof<System.Exception>
 
+    module CreateTableInDifferentSchemaTests =
+        [<Test>]
+        let ``should script schema when table is not in default schema``() =
+            CreateTableInSchema "mySchema" "TestTable"
+                |> WithNullableInt "Column1"
+                |> ScriptTable
+                |> should equal @"CREATE SCHEMA [mySchema]
+GO
 
+CREATE TABLE [mySchema].[TestTable]( [Column1] [int] NULL )
+GO"
+
+        [<Test>]
+        let ``should only script create schema once when creating mulitple tables``() =
+            CreateCatalog ()
+                |> WithTable (CreateTableInSchema "mySchema" "MyTable" |> WithInt "MyColumn")
+                |> WithTable (CreateTableInSchema  "mySchema" "MySecondTable" |> WithVarchar "MyVar" 10)
+                |> Script
+                |> should equal @"CREATE SCHEMA [mySchema]
+GO
+
+CREATE TABLE [mySchema].[MySecondTable]( [MyVar] [varchar](10) NOT NULL )
+GO
+CREATE TABLE [mySchema].[MyTable]( [MyColumn] [int] NOT NULL )
+GO"
+
+        [<Test>]
+        let ``should only script out multiple schemas in alphabetical groups regardless of order they were created in``() =
+            CreateCatalog ()
+                |> WithTable (CreateTableInSchema "mySchema" "CTable" |> WithInt "MyColumn")
+                |> WithTable (CreateTableInSchema  "mySchema" "BTable" |> WithVarchar "MyVar" 10)
+                |> WithTable (CreateTableInSchema  "myOtherSchema" "BTable" |> WithVarchar "MyVar" 10)
+                |> WithTable (CreateTableInSchema  "mySchema" "ATable" |> WithVarchar "MyVar" 10)
+                |> Script
+                |> should equal @"CREATE SCHEMA [mySchema]
+GO
+
+CREATE TABLE [mySchema].[ATable]( [MyVar] [varchar](10) NOT NULL )
+GO
+CREATE TABLE [mySchema].[BTable]( [MyVar] [varchar](10) NOT NULL )
+GO
+CREATE TABLE [mySchema].[CTable]( [MyColumn] [int] NOT NULL )
+GO
+CREATE SCHEMA [myOtherSchema]
+GO
+
+CREATE TABLE [myOtherSchema].[BTable]( [MyVar] [varchar](10) NOT NULL )
+GO"
+
+        
 
     module CreateMultipleTableTests =
         [<Test>]
-        let ``should be create multiple tables``() =
+        let ``should script multiple tables in alphabetical order``() =
             CreateCatalog ()
-                |> WithTable (CreateTable "MyTable" |> WithInt "MyColumn")
-                |> WithTable (CreateTable "MySecondTable" |> WithVarchar "MyVar" 10)
+                |> WithTable (CreateTable "C" |> WithInt "MyColumn")
+                |> WithTable (CreateTable "A" |> WithVarchar "MyVar" 10)
+                |> WithTable (CreateTable "B" |> WithVarchar "MyVar" 10)
                 |> Script
-                |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyColumn] [int] NOT NULL )
+                |> should equal @"CREATE TABLE [dbo].[A]( [MyVar] [varchar](10) NOT NULL )
 GO
-CREATE TABLE [dbo].[MySecondTable]( [MyVar] [varchar](10) NOT NULL )
+CREATE TABLE [dbo].[B]( [MyVar] [varchar](10) NOT NULL )
+GO
+CREATE TABLE [dbo].[C]( [MyColumn] [int] NOT NULL )
 GO"
 
 

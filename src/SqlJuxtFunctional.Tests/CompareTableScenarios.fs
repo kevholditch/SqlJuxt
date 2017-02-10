@@ -428,6 +428,36 @@ module CompareTableScenarios =
         result.differentTables.Head.right.name |> should equal "DifferentIndexTable"
 
     [<Test>]
+    let ``should return different table names when one table has an index and the other does not``() =
+        use left = createDatabase()
+        use right = createDatabase()
+     
+        let leftTable = CreateTable "DifferentIndexTable"
+                        |> WithInt "Column1"
+                        |> WithInt "Column2" 
+                        |> WithInt "Column3" 
+                        |> WithClusteredIndex UNIQUE [("Column1", ASC); ("Column2", ASC)]
+                        |> ScriptTable 
+        
+        runScript left leftTable
+
+        let rightTable = CreateTable "DifferentIndexTable"
+                        |> WithInt "Column1"
+                        |> WithInt "Column2" 
+                        |> WithInt "Column3"
+                        |> ScriptTable 
+        
+        runScript right rightTable
+        
+        let result = loadCatalog left.ConnectionString
+                        |> compareWith right.ConnectionString
+                        |> extractDifferences
+        
+        result.differentTables.Length |> should equal 1
+        result.differentTables.Head.left.name |> should equal "DifferentIndexTable"
+        result.differentTables.Head.right.name |> should equal "DifferentIndexTable"
+
+    [<Test>]
     let ``should return differences for multiple tables where some are missing and some are different``() =
         use left = createDatabase()
         use right = createDatabase()

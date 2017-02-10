@@ -12,8 +12,10 @@ module DatabaseBuilder =
         let WithTable table catalog =
             {catalog with tables = table::catalog.tables}
         
-        let CreateTable name =
-            {schema = "dbo"; name = name; columns = []; primaryKey = None; indexes = []}
+        let CreateTableInSchema schema name =
+            {schema = schema; name = name; columns = []; primaryKey = None; indexes = []}
+
+        let CreateTable = CreateTableInSchema "dbo"
 
         let private withInt nullable name table =
             let c = IntColumn {name = name; isNullable = nullable}

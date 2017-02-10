@@ -20,8 +20,6 @@ module DatabaseTypes =
     type DatabaseDifferences = {missingTables: Table list; differentTables: TableDifference list}
     type ComparisonResult = IsMatch | Differences of DatabaseDifferences
 
-    
-
     let getColumnName c =
         match c with
             | IntColumn i -> i.name

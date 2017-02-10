@@ -11,7 +11,15 @@ module DatabaseScripter =
                                 | CLUSTERED -> "CLUSTERED"
                                 | NONCLUSTERED -> "NONCLUSTERED"
 
-    let ScriptTable table =
+    let scriptSchema s =
+        match s with
+        | "dbo" -> ""
+        | _ -> sprintf "CREATE SCHEMA [%s]%sGO%s%s" s Environment.NewLine Environment.NewLine Environment.NewLine
+
+    let scriptTable scriptSchemaFun table =
+
+        let schemaScript = scriptSchemaFun table.schema
+
         let tableNameWithSchema = sprintf "[%s].[%s]" table.schema table.name
 
         let openScript = sprintf "CREATE TABLE %s(" tableNameWithSchema 
@@ -49,8 +57,16 @@ module DatabaseScripter =
                 |> List.map(fun i -> scriptIndex i) 
                 |> fun s -> String.Join(Environment.NewLine, s)
 
-        openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript + indexScript
+        schemaScript + openScript + " " + columnScript + " )" + Environment.NewLine + "GO" + primaryKeyScript + indexScript
+
+    let ScriptTable = scriptTable scriptSchema
+       
 
     let Script catalog =
-        String.Join(Environment.NewLine, catalog.tables |> List.rev |> List.map(ScriptTable))
+        let inner = catalog.tables |> Seq.groupBy(fun t -> t.schema)
+                                                        |> Seq.toList
+                                                        |> List.map(fun (k, ts) ->  scriptSchema k + String.Join(Environment.NewLine, ts |> Seq.toList 
+                                                                                                                                         |> List.sortBy(fun t -> t.name)  
+                                                                                                                                         |> List.map(fun t -> scriptTable (fun _ -> "") t)))
+        String.Join(Environment.NewLine, inner)
 
