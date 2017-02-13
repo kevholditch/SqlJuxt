@@ -13,7 +13,7 @@ module DatabaseBuilder =
             {catalog with tables = table::catalog.tables}
         
         let CreateTableInSchema schema name =
-            {schema = schema; name = name; columns = []; primaryKey = None; indexes = []}
+            {schema = schema; name = name; columns = []; primaryKey = None; indexes = []; constraints = []}
 
         let CreateTable = CreateTableInSchema "dbo"
 
@@ -31,12 +31,22 @@ module DatabaseBuilder =
         let WithNullableVarchar = withVarchar true
         let WithVarchar = withVarchar false
 
+        let WithUniqueConstraint  (columns:string list) (table:Table) =
+            let cs = columns |> List.map(fun c -> let column = getColumnByName c table.columns
+                                                  match column with
+                                                        | Some col -> (col, ASC)
+                                                        | None -> failwithf "no column named %s exists on table %s" c table.name )
+            let columnNames = getColumnsAsUnderscoreString cs
+            let constraintName = sprintf "UQ_%s_%s" table.name columnNames
+            let c = {Constraint.name = constraintName; columns = cs; clustering = NONCLUSTERED; uniqueness = UNIQUE; constraintType = UNIQUECONSTRAINT}
+            {table with constraints = c::table.constraints} 
+
         let private withIndex (clustering:Clustering) (uniqueness:Uniqueness) (columns:(string * SortDirection) list) (table:Table) =
             let cs = columns |> List.map(fun (c,d) -> let column = getColumnByName c table.columns
                                                       match column with
                                                         | Some col -> (col, d)
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )
-            let columnNames = cs |> List.map(fun(c,d) -> (getColumnName c)) |> fun cols -> String.Join("_", cols)
+            let columnNames = getColumnsAsUnderscoreString cs
             let indexName = sprintf "IDX_%s_%s" table.name columnNames
             let indexNames = table.indexes |> List.map(fun i -> i.name)
             let newIndexName = getNextAvailableName indexName indexNames

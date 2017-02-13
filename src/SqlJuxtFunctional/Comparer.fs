@@ -77,7 +77,7 @@ order by OBJECT_SCHEMA_NAME(o.object_id), OBJECT_NAME(o.object_id), i.name, ic.k
 
                                     let primaryKey = tableConstraints |> List.tryFind(fun c -> c.constraintType = PRIMARYKEY)
                                     let indexes = tableConstraints |> List.filter(fun c -> c.constraintType = INDEX)
-                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = indexes})                      
+                                    {schema = schema; name = tableName; columns = columns |> Seq.toList; primaryKey = primaryKey; indexes = indexes; constraints = []})                      
         {tables = tables |> Seq.toList}
 
     let loadCatalog connectionString =        

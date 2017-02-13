@@ -246,6 +246,31 @@ GO"
                         |> ignore)          
                 |> should (throwWithMessage "clustered index not allowed as table InvalidTable already contains clustered index") typeof<System.Exception>
 
+
+    module CreateUniqueConstraintTests =
+        [<Test>]
+        let ``should be able to create a unique constraint on a table``() =
+                CreateTable "MyTable"
+                    |> WithInt "MyInt"
+                    |> WithUniqueConstraint ["MyInt"]
+                    |> ScriptTable
+                    |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyInt] [int] NOT NULL )
+GO
+
+ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [UQ_MyTable_MyInt] UNIQUE ([MyInt] ASC)
+GO"
+
+        [<Test>]
+        let ``should not be able to create a unique constraint on a column that does not exist``() =
+            (fun () -> CreateTable "MyTestTable"
+                        |> WithInt "MyInt"
+                        |> WithInt "MyOtherInt"
+                        |> WithUniqueConstraint ["Phantom"]
+                        |> ScriptTable
+                        |> ignore)          
+                |> should (throwWithMessage "no column named Phantom exists on table MyTestTable") typeof<System.Exception>
+
+
     module CreateTableInDifferentSchemaTests =
         [<Test>]
         let ``should script schema when table is not in default schema``() =

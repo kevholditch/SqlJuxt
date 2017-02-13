@@ -1,7 +1,7 @@
 ﻿namespace SqlJuxtFunctional
 
 open LibraryFunctions
-
+open System
 
 module DatabaseTypes =
 
@@ -11,19 +11,24 @@ module DatabaseTypes =
     type SortDirection = ASC | DESC
     type Clustering = CLUSTERED | NONCLUSTERED
     type Uniqueness = UNIQUE | NONUNIQUE
-    type ConstraintType = PRIMARYKEY | INDEX
+    type ConstraintType = PRIMARYKEY | INDEX | UNIQUECONSTRAINT
     type Constraint = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering; uniqueness : Uniqueness; constraintType: ConstraintType}
-    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option; indexes: Constraint list}
+    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option; indexes: Constraint list; constraints: Constraint list}
     type Catalog = {tables: Table list}
 
     type TableDifference = {left: Table; right: Table}
     type DatabaseDifferences = {missingTables: Table list; differentTables: TableDifference list}
     type ComparisonResult = IsMatch | Differences of DatabaseDifferences
 
+   
     let getColumnName c =
         match c with
             | IntColumn i -> i.name
             | VarColumn v -> v.name
+
+    let getColumnsAsUnderscoreString cols = 
+        cols |> List.map(fun(c,d) -> (getColumnName c)) 
+             |> fun cs -> String.Join("_", cs)
 
     let isColumnNullable c =
         match c with
