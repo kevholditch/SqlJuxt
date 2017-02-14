@@ -52,8 +52,13 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="TestModule.fs" />
     <Compile Include="TableBuilderScenarios.fs" />
     <Compile Include="CompareTableScenarios.fs" />
+    <Compile Include="CompareTableStructureScenarios.fs" />
+    <Compile Include="CompareTablePrimaryKeyScenarios.fs" />
+    <Compile Include="CompareTableIndexScenarios.fs" />
+    <Compile Include="CompareTableConstraintScenarios.fs" />
     <Compile Include="NextAvailableNameScenarios.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
