@@ -37,13 +37,18 @@ module DatabaseScripter =
                              |> fun c -> String.Join(", ", c)
                              |> fun s -> sprintf "(%s)" s
 
+        let scriptColumnNames columnDirections =
+            columnDirections |> List.map(fun (c, d) -> sprintf "[%s]" (getColumnName c) )
+                             |> fun c -> String.Join(", ", c)
+                             |> fun s -> sprintf "(%s)" s
+
         let primaryKeyScript = match table.primaryKey with
                                 | Some key ->   let cols = key.columns |> scriptColumnDirections
                                                 let clustered = key.clustering |> clusteredString
                                                 sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] PRIMARY KEY %s %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema key.name clustered cols Environment.NewLine
                                 | None -> ""
 
-        let constraintsScript = String.Join(Environment.NewLine, table.constraints |> List.map(fun c -> sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] UNIQUE %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema c.name (c.columns |> scriptColumnDirections) Environment.NewLine))
+        let constraintsScript = String.Join(Environment.NewLine, table.constraints |> List.map(fun c -> sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] UNIQUE %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema c.name (c.columns |> scriptColumnNames) Environment.NewLine))
 
         let scriptIndex (index:Constraint) =
             let columnDirections = scriptColumnDirections index.columns

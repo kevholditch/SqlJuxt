@@ -249,7 +249,7 @@ GO"
 
     module CreateUniqueConstraintTests =
         [<Test>]
-        let ``should be able to create a unique constraint on a table``() =
+        let ``should be able to create a unique constraint on a single column on a table``() =
                 CreateTable "MyTable"
                     |> WithInt "MyInt"
                     |> WithUniqueConstraint ["MyInt"]
@@ -257,7 +257,19 @@ GO"
                     |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyInt] [int] NOT NULL )
 GO
 
-ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [UQ_MyTable_MyInt] UNIQUE ([MyInt] ASC)
+ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [UQ_MyTable_MyInt] UNIQUE ([MyInt])
+GO"
+        [<Test>]
+        let ``should be able to create a unique constraint on multiple columns on a table``() =
+                CreateTable "MyTable"
+                    |> WithInt "MyInt"
+                    |> WithNullableInt "MyInt2"
+                    |> WithUniqueConstraint ["MyInt"; "MyInt2"]
+                    |> ScriptTable
+                    |> should equal @"CREATE TABLE [dbo].[MyTable]( [MyInt] [int] NOT NULL, [MyInt2] [int] NULL )
+GO
+
+ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [UQ_MyTable_MyInt_MyInt2] UNIQUE ([MyInt], [MyInt2])
 GO"
 
         [<Test>]
