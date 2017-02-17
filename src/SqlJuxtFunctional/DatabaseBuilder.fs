@@ -13,7 +13,7 @@ module DatabaseBuilder =
             {catalog with tables = table::catalog.tables}
         
         let CreateTableInSchema schema name =
-            {schema = schema; name = name; columns = []; primaryKey = None; indexes = []; constraints = []}
+            {schema = schema; name = name; columns = []; primaryKey = None; indexes = []; uniqueConstraints = []}
 
         let CreateTable = CreateTableInSchema "dbo"
 
@@ -38,8 +38,8 @@ module DatabaseBuilder =
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )
             let columnNames = getColumnsAsUnderscoreString cs
             let constraintName = sprintf "UQ_%s_%s" table.name columnNames
-            let c = {Constraint.name = constraintName; columns = cs; clustering = NONCLUSTERED; uniqueness = UNIQUE; constraintType = UNIQUECONSTRAINT}
-            {table with constraints = c::table.constraints} 
+            let c = {UniqueConstraint.name = constraintName; columns = cs}
+            {table with uniqueConstraints = c::table.uniqueConstraints} 
 
         let private withIndex (clustering:Clustering) (uniqueness:Uniqueness) (columns:(string * SortDirection) list) (table:Table) =
             let cs = columns |> List.map(fun (c,d) -> let column = getColumnByName c table.columns
@@ -50,7 +50,7 @@ module DatabaseBuilder =
             let indexName = sprintf "IDX_%s_%s" table.name columnNames
             let indexNames = table.indexes |> List.map(fun i -> i.name)
             let newIndexName = getNextAvailableName indexName indexNames
-            let index = {Constraint.name = newIndexName; columns = cs; clustering = clustering; uniqueness = uniqueness; constraintType = INDEX}
+            let index = {Index.name = newIndexName; columns = cs; clustering = clustering; uniqueness = uniqueness }
             
             match (table.primaryKey, table.indexes |> List.filter(fun i -> i.clustering = CLUSTERED)) with 
                 | (Some key, _) when key.clustering = CLUSTERED -> failwithf "clustered index not allowed as table %s already contains clustered primary key" table.name
@@ -67,7 +67,7 @@ module DatabaseBuilder =
                                                         | Some col when isColumnNullable col -> failwithf "column named %s is nullable, nullable columns are not allowed as part of a primary key" c 
                                                         | Some col -> (col, d)
                                                         | None -> failwithf "no column named %s exists on table %s" c table.name )  
-            {table with primaryKey = Some {name = sprintf "PK_%s" table.name; columns = cs; clustering = clustering; uniqueness = UNIQUE; constraintType = PRIMARYKEY}}
+            {table with primaryKey = Some {name = sprintf "PK_%s" table.name; columns = cs; clustering = clustering }}
               
         let WithClusteredPrimaryKey = WithPrimaryKey CLUSTERED
         let WithNonClusteredPrimaryKey = WithPrimaryKey NONCLUSTERED

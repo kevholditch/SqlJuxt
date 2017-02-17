@@ -12,8 +12,10 @@ module DatabaseTypes =
     type Clustering = CLUSTERED | NONCLUSTERED
     type Uniqueness = UNIQUE | NONUNIQUE
     type ConstraintType = PRIMARYKEY | INDEX | UNIQUECONSTRAINT
-    type Constraint = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering; uniqueness : Uniqueness; constraintType: ConstraintType}
-    type Table = {schema: string; name: string; columns: Column list; primaryKey: Constraint option; indexes: Constraint list; constraints: Constraint list}
+    type PrimaryKey = {name: string; columns: (Column * SortDirection) list; clustering: Clustering }
+    type UniqueConstraint = {name: string; columns: (Column * SortDirection)  list} 
+    type Index = {name: string; columns: (Column * SortDirection)  list; clustering: Clustering; uniqueness : Uniqueness}
+    type Table = {schema: string; name: string; columns: Column list; primaryKey: PrimaryKey option; indexes: Index list; uniqueConstraints: UniqueConstraint list}
     type Catalog = {tables: Table list}
 
     type TableDifference = {left: Table; right: Table}

@@ -48,9 +48,9 @@ module DatabaseScripter =
                                                 sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] PRIMARY KEY %s %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema key.name clustered cols Environment.NewLine
                                 | None -> ""
 
-        let constraintsScript = String.Join(Environment.NewLine, table.constraints |> List.map(fun c -> sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] UNIQUE %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema c.name (c.columns |> scriptColumnNames) Environment.NewLine))
+        let constraintsScript = String.Join(Environment.NewLine, table.uniqueConstraints |> List.map(fun c -> sprintf "%s%sALTER TABLE %s ADD CONSTRAINT [%s] UNIQUE %s%sGO" Environment.NewLine Environment.NewLine tableNameWithSchema c.name (c.columns |> scriptColumnNames) Environment.NewLine))
 
-        let scriptIndex (index:Constraint) =
+        let scriptIndex (index:Index) =
             let columnDirections = scriptColumnDirections index.columns
             let clustering = clusteredString index.clustering
             let unique = match index.uniqueness with
