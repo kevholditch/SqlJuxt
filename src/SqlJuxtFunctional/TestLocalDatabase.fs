@@ -27,7 +27,7 @@ module TestLocalDatabase =
                             | Some v -> @"(LocalDB)\MSSQLLocalDB"
                             | None -> failwith "No instance of local db is installed on this machine"
 
-        sprintf "Data Source=%s;Integrated Security=True;" dataSource
+        sprintf "Data Source=%s;Integrated Security=True;Pooling=false;" dataSource
 
     let getCatalogConnectionString catalog =
         localConnectionString + "Initial Catalog=" + catalog + ";"
