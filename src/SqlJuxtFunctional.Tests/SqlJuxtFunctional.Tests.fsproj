@@ -53,7 +53,11 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="TestModule.fs" />
-    <Compile Include="TableBuilderScenarios.fs" />
+    <Compile Include="TableBuilderCreateColumnTests.fs" />
+    <Compile Include="TableBuilderCreatePrimaryKeyTests.fs" />
+    <Compile Include="TableBuilderCreateIndexTests.fs" />
+    <Compile Include="TableBuilderCreateConstraintTests.fs" />
+    <Compile Include="TableBuilderCreateMultipleTableTests.fs" />
     <Compile Include="CompareTableScenarios.fs" />
     <Compile Include="CompareTableStructureScenarios.fs" />
     <Compile Include="CompareTablePrimaryKeyScenarios.fs" />
